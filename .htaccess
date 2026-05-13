@@ -1,0 +1,9 @@
+# Portal root redirect — place this at portal/ (one level above public/)
+# Redirects anyone who visits /portal/ to /portal/public/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Don't redirect if already going to /portal/public/
+    RewriteCond %{REQUEST_URI} !^/portal/public
+    RewriteRule ^ /portal/public/ [R=301,L]
+</IfModule>

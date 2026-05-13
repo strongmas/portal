@@ -1,0 +1,618 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+:root {
+    --bg:           #0A1428;
+    --bg-card:      #0F1B33;
+    --bg-raised:    #142B54;
+    --bg-hover:     #1B3668;
+    --bg-active:    #2A4885;
+    --tan:          #EFC59D;
+    --tan-light:    #F5D5B5;
+    --tan-dark:     #D4A77A;
+    --fg:           #F0F4FA;
+    --fg-mute:      #B5C4DD;
+    --fg-dim:       #7A8AA5;
+    --fg-faint:     #4A5876;
+    --line:         rgba(255,255,255,0.08);
+    --line-strong:  rgba(255,255,255,0.16);
+    --line-tan:     rgba(239,197,157,0.24);
+    --ok:           #5DD9A7;
+    --ok-bg:        rgba(93,217,167,0.12);
+    --warn:         #F5C26B;
+    --warn-bg:      rgba(245,194,107,0.14);
+    --danger:       #F47272;
+    --danger-bg:    rgba(244,114,114,0.12);
+    --info-bg:      rgba(239,197,157,0.12);
+    --hero-gradient: radial-gradient(120% 80% at 80% 0%, rgba(239,197,157,0.18) 0%, rgba(20,43,84,0) 60%),
+                     linear-gradient(180deg,#142B54 0%,#0A1428 100%);
+    --ease:         cubic-bezier(0.32,0.72,0,1);
+    --dur-fast:     120ms;
+    --dur-med:      220ms;
+    --dur-slow:     380ms;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+    --r-xl: 20px; --r-2xl: 28px; --r-pill: 999px;
+    --shadow-tan: 0 0 0 1px rgba(239,197,157,0.24), 0 8px 24px rgba(239,197,157,0.12);
+    --shadow-md:  0 6px 24px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+    body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Geist', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01","cv11";
+    }
+    ::selection { background: var(--tan); color: var(--bg-raised); }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--bg-active); }
+}
+
+/* ── Components ─────────────────────────────────────────────────────────── */
+@layer components {
+
+    /* ── App shell ────────────────────────────────────────────────────── */
+    .app-shell {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────── */
+    .sidebar {
+        background: var(--bg-card);
+        border-right: 1px solid var(--line);
+        padding: 20px 12px;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px 20px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 16px;
+    }
+    .sidebar-logo-mark {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .sidebar-logo-text { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; color: var(--fg); line-height: 1.2; }
+    .sidebar-logo-text .sub { display: block; font-size: 10px; color: var(--fg-dim); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; }
+
+    /* ── Sidebar nav item ──────────────────────────────────────────────── */
+    .nav-item {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium transition-all;
+        color: var(--fg-mute);
+    }
+    .nav-item:hover { background: var(--bg-raised); color: var(--fg); }
+    .nav-item.active {
+        background: var(--bg-raised);
+        color: var(--fg);
+        box-shadow: inset 2px 0 0 var(--tan);
+    }
+    .nav-item .nav-icon { width: 18px; height: 18px; opacity: 0.65; flex-shrink: 0; }
+    .nav-item.active .nav-icon { opacity: 1; color: var(--tan); }
+    .nav-badge {
+        margin-left: auto;
+        background: var(--tan);
+        color: var(--bg-raised);
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: var(--r-pill);
+        font-weight: 700;
+        font-family: 'Geist Mono', monospace;
+    }
+
+    /* ── Topbar ─────────────────────────────────────────────────────────── */
+    .topbar {
+        height: 64px;
+        border-bottom: 1px solid var(--line);
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg);
+        position: sticky;
+        top: 0;
+        z-index: 40;
+    }
+
+    /* ── Avatar ─────────────────────────────────────────────────────────── */
+    .avatar {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--tan) 0%, var(--tan-dark) 100%);
+        color: var(--bg-raised);
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        font-size: 13px;
+        border: 1px solid var(--line-tan);
+        flex-shrink: 0;
+    }
+    .avatar.lg { width: 56px; height: 56px; font-size: 18px; }
+
+    /* ── Cards ───────────────────────────────────────────────────────────── */
+    .card {
+        background: var(--bg-card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        padding: 24px;
+    }
+    .card-hi {
+        background: var(--hero-gradient);
+        border-color: var(--line-tan);
+    }
+    .card-brand {
+        background: var(--bg-raised);
+        border-color: var(--line-strong);
+    }
+    .card-tan {
+        background: var(--tan);
+        color: var(--bg-raised);
+        border: none;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────────────── */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-semibold whitespace-nowrap cursor-pointer;
+        padding: 10px 18px;
+        background: var(--tan);
+        color: var(--bg-raised);
+        border: none;
+        border-radius: var(--r-md);
+        transition: all var(--dur-fast) var(--ease);
+    }
+    .btn-primary:hover { background: var(--tan-light); box-shadow: var(--shadow-tan); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer;
+        padding: 10px 18px;
+        background: var(--bg-hover);
+        color: var(--fg);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-md);
+        transition: all var(--dur-fast) var(--ease);
+    }
+    .btn-secondary:hover { background: var(--bg-active); transform: translateY(-1px); }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer;
+        padding: 10px 18px;
+        background: transparent;
+        color: var(--fg-mute);
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        transition: all var(--dur-fast) var(--ease);
+    }
+    .btn-ghost:hover { color: var(--fg); border-color: var(--line-strong); }
+
+    .btn-yellow {
+        @apply inline-flex items-center justify-center gap-2 text-sm font-semibold whitespace-nowrap cursor-pointer;
+        padding: 10px 18px;
+        background: var(--tan);
+        color: var(--bg-raised);
+        border: none;
+        border-radius: var(--r-md);
+        transition: all var(--dur-fast) var(--ease);
+    }
+    .btn-yellow:hover { background: var(--tan-light); box-shadow: var(--shadow-tan); }
+
+    /* ── Inputs ─────────────────────────────────────────────────────────── */
+    .input-base {
+        @apply w-full text-sm;
+        background: var(--bg-raised);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--r-md);
+        padding: 12px 14px;
+        color: var(--fg);
+        transition: all var(--dur-fast) var(--ease);
+        outline: none;
+    }
+    .input-base::placeholder { color: var(--fg-faint); }
+    .input-base:hover { border-color: var(--tan-dark); }
+    .input-base:focus { border-color: var(--tan); box-shadow: 0 0 0 4px rgba(239,197,157,0.12); }
+    .input-base option { background: var(--bg-raised); color: var(--fg); }
+
+    /* ── Chips ───────────────────────────────────────────────────────────── */
+    .chip {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+        background: var(--bg-hover);
+        color: var(--fg-mute);
+        border: 1px solid var(--line);
+    }
+    .chip-ok {
+        background: var(--ok-bg);
+        color: var(--ok);
+        border-color: rgba(93,217,167,0.24);
+    }
+    .chip-ok::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--ok);
+        display: inline-block;
+    }
+    .chip-pending {
+        background: var(--warn-bg);
+        color: var(--warn);
+        border-color: rgba(245,194,107,0.24);
+    }
+    .chip-pending::before {
+        content: '';
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--warn);
+        display: inline-block;
+    }
+    .chip-danger {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border-color: rgba(244,114,114,0.24);
+    }
+    .chip-tan {
+        background: var(--info-bg);
+        color: var(--tan);
+        border-color: var(--line-tan);
+    }
+    .chip-dark {
+        background: var(--tan);
+        color: var(--bg-raised);
+        border-color: transparent;
+        font-weight: 600;
+    }
+    .chip-hi { background: var(--info-bg); color: var(--tan); border-color: var(--line-tan); }
+
+    /* ── Progress bar ────────────────────────────────────────────────────── */
+    .progress-bar {
+        height: 6px;
+        background: var(--bg-hover);
+        border-radius: var(--r-pill);
+        overflow: hidden;
+        border: none;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--tan-dark) 0%, var(--tan) 100%);
+        border-radius: var(--r-pill);
+        transition: width var(--dur-slow) var(--ease);
+        border: none;
+    }
+
+    /* ── Flash / toast ───────────────────────────────────────────────────── */
+    .flash-success {
+        background: var(--ok-bg);
+        border-bottom: 1px solid rgba(93,217,167,0.24);
+        color: var(--ok);
+    }
+    .flash-error {
+        background: var(--danger-bg);
+        border-bottom: 1px solid rgba(244,114,114,0.24);
+        color: var(--danger);
+    }
+
+    /* ── Timeline ─────────────────────────────────────────────────────────── */
+    .timeline-dot {
+        position: absolute;
+        left: -24px; top: 12px;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        border: 2px solid var(--line-strong);
+        background: var(--bg-card);
+    }
+    .timeline-dot-active { background: var(--tan); border-color: var(--tan); }
+
+    /* ── Stat tile ─────────────────────────────────────────────────────────── */
+    .stat-tile {
+        background: var(--bg-card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        padding: 16px 20px;
+    }
+    .stat-tile-hi {
+        background: var(--info-bg);
+        border-color: var(--line-tan);
+    }
+    .stat-label {
+        font-size: 11px;
+        color: var(--fg-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 500;
+        font-family: 'Geist Mono', monospace;
+        margin-bottom: 6px;
+    }
+    .stat-value {
+        font-family: 'Geist Mono', monospace;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        color: var(--fg);
+    }
+    .stat-value.lg { font-size: 40px; }
+    .stat-value.xl { font-size: 56px; font-weight: 400; }
+
+    /* ── Receipt ─────────────────────────────────────────────────────────── */
+    .receipt {
+        background: var(--bg-card);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        padding: 20px;
+    }
+
+    /* ── nav-link (legacy horizontal nav compat) ─────────────────────────── */
+    .nav-link { color: var(--fg-mute); font-size: 14px; transition: color var(--dur-fast); }
+    .nav-link:hover { color: var(--fg); }
+    .nav-link-active { color: var(--tan); font-weight: 500; }
+
+    /* ── Misc utilities ─────────────────────────────────────────────────── */
+    .divider { height: 1px; background: var(--line); border: none; margin: 20px 0; }
+    .eyebrow {
+        font-family: 'Geist Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--fg-dim);
+        font-weight: 500;
+    }
+    .eyebrow-tan { color: var(--tan); }
+    .num { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+
+    /* ── Building viz wrapper ─────────────────────────────────────────────── */
+    .building-floor { @apply flex-1 flex items-center justify-around px-2 relative; }
+    .building-window { border: 1px solid var(--bg-hover); border-radius: 2px; }
+
+    /* ── Mobile hamburger button ──────────────────────────────────────────── */
+    .mobile-menu-btn {
+        display: none;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--line);
+        background: var(--bg-card);
+        color: var(--fg-mute);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all var(--dur-fast);
+    }
+    .mobile-menu-btn:hover { color: var(--fg); border-color: var(--line-strong); }
+
+    /* ── Sidebar overlay backdrop ─────────────────────────────────────────── */
+    .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        z-index: 800;
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+    }
+    .sidebar-backdrop.is-open { display: block; }
+
+    /* ── Page header (stacks on mobile) ──────────────────────────────────── */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* ── Form footer (Cancel + Submit row, stacks on mobile) ─────────────── */
+    .form-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+}
+
+/* ── Login page ─────────────────────────────────────────────────────────── */
+/* Mobile: hide brand panel, full-width form */
+@media (max-width: 768px) {
+    .login-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .login-brand {
+        display: none !important;
+    }
+}
+
+/* ── Tablet (769px – 1024px) ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    main {
+        padding: 28px 24px 56px !important;
+    }
+    .topbar {
+        padding: 0 24px;
+    }
+}
+
+/* ── Mobile (≤ 768px) ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+    /* Prevent horizontal bleed */
+    html, body { overflow-x: hidden; }
+
+    /* App shell: drop the sidebar column */
+    .app-shell {
+        grid-template-columns: 1fr;
+    }
+
+    /* Sidebar: hidden by default, slides in as overlay */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        z-index: 900;
+        transform: translateX(-100%);
+        transition: transform var(--dur-med) var(--ease);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+    }
+    .sidebar.is-open { transform: translateX(0); }
+    .sidebar-backdrop.is-open { display: block; }
+
+    /* Topbar: tighter padding + show hamburger */
+    .topbar {
+        padding: 0 16px;
+    }
+    .mobile-menu-btn { display: flex; }
+
+    /* Main content: tighter padding */
+    main {
+        padding: 20px 16px 60px !important;
+    }
+    .flash-success,
+    .flash-error {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    /* Collapse inline grid layouts to single column,
+       except elements marked .no-collapse (e.g. data tables) */
+    main [style*="grid-template-columns"]:not(.no-collapse) {
+        grid-template-columns: 1fr !important;
+    }
+    /* Also collapse CSS-class grids */
+    main .grid:not(.no-collapse) {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Tables: horizontal scroll inside cards */
+    .card:has(table) {
+        overflow-x: auto !important;
+    }
+    .card:has(table) table {
+        min-width: 560px;
+    }
+
+    /* Page header: stack title + actions vertically */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    /* Reduce oversized headings */
+    h1[style*="font-size:32px"],
+    h1[style*="font-size: 32px"] {
+        font-size: 22px !important;
+    }
+    h1[style*="font-size:28px"],
+    h1[style*="font-size: 28px"] {
+        font-size: 20px !important;
+    }
+
+    /* Fix grid-column:span X in collapsed 1-col grids —
+       converts span-2 items to full-width (1/-1) so no implicit extra columns appear */
+    main [style*="grid-column:span"],
+    main [style*="grid-column: span"] {
+        grid-column: 1 / -1 !important;
+    }
+
+    /* Form footer rows: stack vertically on mobile */
+    .form-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .form-footer .btn-primary,
+    .form-footer .btn-ghost,
+    .form-footer .btn-secondary {
+        justify-content: center;
+    }
+    .form-footer > a {
+        text-align: center;
+        padding: 8px 0;
+    }
+
+    /* Override inline-style padding on portal-layout's main element */
+    [style*="padding:32px 40px"] {
+        padding: 20px 16px 56px !important;
+    }
+
+    /* Receipt: prevent long property names / refs from overflowing card */
+    .receipt .flex > strong,
+    .receipt .flex > span:last-child {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        text-align: right;
+        max-width: 60%;
+    }
+
+    /* Instalment / data table scroll wrappers */
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table-scroll > .no-collapse {
+        min-width: 560px;
+    }
+
+    /* Property cards: auto-fit minmax too wide on mobile */
+    main [style*="minmax(380px"] {
+        grid-template-columns: 1fr !important;
+    }
+    main [style*="minmax(320px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Dashboard hero: scale down 40px monospace amount so it fits beside button */
+    [style*="font-size:40px"] {
+        font-size: 24px !important;
+    }
+    /* Hero card amount+button row: wrap to two lines on small screens */
+    .hero-amount-row {
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
+
+    /* Profile property cards: stack building-viz above info on mobile */
+    .prop-body {
+        flex-direction: column !important;
+    }
+
+    /* Balance index: stack building-viz above amounts on mobile */
+    .balance-card-body {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .balance-card-body > div[style*="flex:1"] {
+        width: 100% !important;
+    }
+
+    /* Flex rows that justify-between with fixed-size right side: allow wrap */
+    .wrap-row {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    /* Portal-layout main: override inline padding */
+    .app-shell > div > main {
+        padding: 20px 16px 56px !important;
+        max-width: 100% !important;
+    }
+}
