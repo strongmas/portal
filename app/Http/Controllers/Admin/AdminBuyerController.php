@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BuyerPasswordResetMail;
 use App\Mail\WelcomeBuyerMail;
 use App\Models\Instalment;
 use App\Models\Ownership;
@@ -144,6 +145,28 @@ class AdminBuyerController extends Controller
         ]);
 
         return back()->with('success', 'Buyer updated.');
+    }
+
+    public function resetPassword(User $buyer)
+    {
+        $tempPassword = Str::random(12);
+
+        $buyer->update(['password' => Hash::make($tempPassword)]);
+
+        $mailSent = false;
+        try {
+            Mail::to($buyer->email)->send(new BuyerPasswordResetMail($buyer, $tempPassword));
+            $mailSent = true;
+        } catch (\Throwable $e) {
+            Log::error('BuyerPasswordResetMail failed for user #' . $buyer->id . ': ' . $e->getMessage());
+        }
+
+        $message = "Password reset. New temp password: {$tempPassword}";
+        if (!$mailSent) {
+            $message .= ' (Email could not be sent — give this password to the buyer manually.)';
+        }
+
+        return back()->with('success', $message);
     }
 
     private function generateInstalments(Ownership $ownership): void

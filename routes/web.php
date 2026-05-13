@@ -138,6 +138,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Buyers + Sales Rep assignment
     Route::resource('buyers', AdminBuyerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
     Route::post('buyers/{buyer}/sales-rep', [AdminSalesRepController::class, 'assignToBuyer'])->name('buyers.assign-rep');
+    Route::post('buyers/{buyer}/reset-password', [AdminBuyerController::class, 'resetPassword'])->name('buyers.reset-password');
 
     // Sales Reps
     Route::get('sales-reps', [AdminSalesRepController::class, 'index'])->name('sales-reps.index');

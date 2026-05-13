@@ -28,6 +28,11 @@
                 <button type="submit" class="btn-primary" style="background:var(--ok);border-color:var(--ok);">✓ Approve KYC</button>
             </form>
         @endif
+        <form method="POST" action="{{ route('admin.buyers.reset-password', $buyer) }}"
+              onsubmit="return confirm('Reset password for {{ addslashes($buyer->name) }}? A new temporary password will be generated and emailed to them.')">
+            @csrf
+            <button type="submit" class="btn-ghost" style="color:var(--warn);border-color:var(--warn);">🔑 Reset password</button>
+        </form>
         <a href="{{ route('admin.ownerships.create', ['buyer_id' => $buyer->id]) }}" class="btn-primary">🔗 Link property</a>
         <a href="{{ route('admin.buyers.edit', $buyer) }}" class="btn-ghost">Edit buyer</a>
     </div>
