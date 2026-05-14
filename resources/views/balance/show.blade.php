@@ -111,8 +111,8 @@
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
                     @foreach($roomImgs as $img)
                     <div style="border-radius:10px;overflow:hidden;border:1px solid var(--line);cursor:pointer;"
-                         @click="lightboxSrc = '{{ asset('storage/' . $img->path) }}'; showLightbox = true">
-                        <img src="{{ asset('storage/' . $img->path) }}" alt="{{ $label }}"
+                         @click="lightboxSrc = '{{ \Storage::disk('public')->url($img->path) }}'; showLightbox = true">
+                        <img src="{{ \Storage::disk('public')->url($img->path) }}" alt="{{ $label }}"
                              style="width:100%;height:160px;object-fit:cover;display:block;transition:transform 0.2s ease;"
                              onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
                     </div>
@@ -128,8 +128,8 @@
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
                     @foreach($propertyImages->sortBy('sort_order') as $img)
                     <div style="border-radius:10px;overflow:hidden;border:2px solid {{ $img->is_cover ? 'var(--tan)' : 'var(--line)' }};cursor:pointer;"
-                         @click="lightboxSrc = '{{ asset('storage/' . $img->path) }}'; showLightbox = true">
-                        <img src="{{ asset('storage/' . $img->path) }}" alt="Development photo"
+                         @click="lightboxSrc = '{{ \Storage::disk('public')->url($img->path) }}'; showLightbox = true">
+                        <img src="{{ \Storage::disk('public')->url($img->path) }}" alt="Development photo"
                              style="width:100%;height:160px;object-fit:cover;display:block;transition:transform 0.2s ease;"
                              onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
                     </div>
@@ -144,8 +144,8 @@
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
                     @foreach($propertyImages->sortBy('sort_order') as $img)
                     <div style="border-radius:10px;overflow:hidden;border:2px solid {{ $img->is_cover ? 'var(--tan)' : 'var(--line)' }};cursor:pointer;"
-                         @click="lightboxSrc = '{{ asset('storage/' . $img->path) }}'; showLightbox = true">
-                        <img src="{{ asset('storage/' . $img->path) }}" alt="Development photo"
+                         @click="lightboxSrc = '{{ \Storage::disk('public')->url($img->path) }}'; showLightbox = true">
+                        <img src="{{ \Storage::disk('public')->url($img->path) }}" alt="Development photo"
                              style="width:100%;height:160px;object-fit:cover;display:block;transition:transform 0.2s ease;"
                              onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
                     </div>

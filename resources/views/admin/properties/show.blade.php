@@ -238,7 +238,7 @@
             <div style="display:flex;flex-wrap:wrap;gap:12px;">
                 @foreach($roomImages->sortBy('sort_order') as $img)
                 <div style="position:relative;border-radius:10px;overflow:hidden;border:2px solid var(--line);">
-                    <img src="{{ asset('storage/' . $img->path) }}"
+                    <img src="{{ \Storage::disk('public')->url($img->path) }}"
                          style="width:140px;height:100px;object-fit:cover;display:block;" alt="{{ $label }}">
                     <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:6px;display:flex;justify-content:center;">
                         <form method="POST" action="{{ route('admin.unit-images.destroy', [$property, $unit, $img]) }}">
@@ -347,7 +347,7 @@
     <div style="padding:20px;display:flex;flex-wrap:wrap;gap:14px;" id="image-grid">
         @foreach($property->images->sortBy('sort_order') as $img)
         <div style="position:relative;border-radius:10px;overflow:hidden;border:2px solid {{ $img->is_cover ? 'var(--hi)' : 'var(--line)' }};" data-id="{{ $img->id }}">
-            <img src="{{ asset('storage/' . $img->path) }}" style="width:140px;height:100px;object-fit:cover;display:block;" alt="{{ $img->caption }}">
+            <img src="{{ \Storage::disk('public')->url($img->path) }}" style="width:140px;height:100px;object-fit:cover;display:block;" alt="{{ $img->caption }}">
             @if($img->is_cover)
             <span style="position:absolute;top:6px;left:6px;background:var(--hi);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;">COVER</span>
             @endif

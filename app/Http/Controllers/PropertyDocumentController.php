@@ -40,7 +40,7 @@ class PropertyDocumentController extends Controller
         $ownership = $user->ownerships()->findOrFail($validated['ownership_id']);
 
         $file = $request->file('file');
-        $path = $file->store('property-documents/' . $ownership->property_id, 'local');
+        $path = $file->store('property-documents/' . $ownership->property_id, 'private');
 
         $existing = PropertyDocument::where('ownership_id', $ownership->id)
             ->where('document_type', $validated['document_type'])
@@ -74,13 +74,11 @@ class PropertyDocumentController extends Controller
             'accessed_at'          => now(),
         ]);
 
-        $path = Storage::disk('local')->path($document->file_path);
-
-        if (!file_exists($path)) {
+        if (!Storage::disk('private')->exists($document->file_path)) {
             abort(404, 'File not found.');
         }
 
-        return response()->download($path, $document->original_name);
+        return Storage::disk('private')->download($document->file_path, $document->original_name);
     }
 
     public function destroy(PropertyDocument $document)
@@ -90,7 +88,7 @@ class PropertyDocumentController extends Controller
             abort(403);
         }
 
-        Storage::disk('local')->delete($document->file_path);
+        Storage::disk('private')->delete($document->file_path);
         $document->delete();
 
         return back()->with('success', 'Document deleted.');

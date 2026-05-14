@@ -58,7 +58,7 @@ class SupportController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('support-attachments/' . $request->user()->id, 'local');
+            $path = $file->store('support-attachments/' . $request->user()->id, 'private');
             $data['attachment_path'] = $path;
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_size'] = $file->getSize();
@@ -92,11 +92,11 @@ class SupportController extends Controller
 
         $path = $message->attachment_path ?? 'support-attachments/' . $message->user_id . '/' . $message->attachment_name;
 
-        if (!Storage::disk('local')->exists($path)) {
+        if (!Storage::disk('private')->exists($path)) {
             abort(404);
         }
 
-        return Storage::disk('local')->download($path, $message->attachment_name);
+        return Storage::disk('private')->download($path, $message->attachment_name);
     }
 
     public function storeTicket(Request $request)

@@ -51,7 +51,7 @@
             {{-- Milestone image preview --}}
             @if($milestone->image_path)
             <div style="margin-bottom:14px;">
-                <img src="{{ asset('storage/' . $milestone->image_path) }}"
+                <img src="{{ \Storage::disk('public')->url($milestone->image_path) }}"
                      style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:1px solid var(--line);"
                      alt="{{ $milestone->title }}">
             </div>

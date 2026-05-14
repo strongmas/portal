@@ -39,7 +39,7 @@ class AdminSupportController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('support-attachments/' . $user->id, 'local');
+            $path = $file->store('support-attachments/' . $user->id, 'private');
             $data['attachment_path'] = $path;
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_size'] = $file->getSize();

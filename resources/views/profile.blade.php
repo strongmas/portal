@@ -17,7 +17,7 @@
                     @csrf
                     <div style="position:relative;display:inline-block;cursor:pointer;" onclick="document.getElementById('avatar-input').click()">
                         @if($user->avatar_path)
-                            <img src="{{ asset('storage/' . $user->avatar_path) }}" alt="{{ $user->name }}"
+                            <img src="{{ \Storage::disk('public')->url($user->avatar_path) }}" alt="{{ $user->name }}"
                                  style="width:88px;height:88px;border-radius:50%;object-fit:cover;border:2px solid var(--line-tan);">
                         @else
                             <div class="avatar lg" style="margin:0 auto;">{{ $user->initials }}</div>

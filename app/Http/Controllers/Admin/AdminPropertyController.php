@@ -105,7 +105,7 @@ class AdminPropertyController extends Controller
 
         // Delete associated document files from disk
         foreach ($property->documents as $doc) {
-            Storage::disk('local')->delete($doc->file_path);
+            Storage::disk('private')->delete($doc->file_path);
         }
 
         $property->delete();

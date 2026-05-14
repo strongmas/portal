@@ -133,7 +133,7 @@
         <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:8px;">
             <a href="{{ route('profile') }}" class="flex items-center gap-3 px-3 py-2 rounded-[10px] hover:bg-[var(--bg-raised)] transition-colors" @click="navOpen = false">
                 @if(auth()->user()?->avatar_path)
-                    <img src="{{ asset('storage/' . auth()->user()->avatar_path) }}"
+                    <img src="{{ \Storage::disk('public')->url(auth()->user()->avatar_path) }}"
                          alt="{{ auth()->user()->name }}"
                          class="avatar" style="object-fit:cover;">
                 @else
@@ -224,7 +224,7 @@
                 {{-- Avatar --}}
                 <a href="{{ route('profile') }}">
                     @if(auth()->user()?->avatar_path)
-                        <img src="{{ asset('storage/' . auth()->user()->avatar_path) }}"
+                        <img src="{{ \Storage::disk('public')->url(auth()->user()->avatar_path) }}"
                              alt="{{ auth()->user()->name }}"
                              class="avatar" style="object-fit:cover;">
                     @else

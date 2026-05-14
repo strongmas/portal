@@ -58,18 +58,16 @@ class AdminPropertyDocumentController extends Controller
 
     public function adminDownload(PropertyDocument $propertyDocument)
     {
-        $path = Storage::disk('local')->path($propertyDocument->file_path);
-
-        if (!file_exists($path)) {
+        if (!Storage::disk('private')->exists($propertyDocument->file_path)) {
             abort(404, 'File not found.');
         }
 
-        return response()->download($path, $propertyDocument->original_name);
+        return Storage::disk('private')->download($propertyDocument->file_path, $propertyDocument->original_name);
     }
 
     public function destroy(PropertyDocument $propertyDocument)
     {
-        Storage::disk('local')->delete($propertyDocument->file_path);
+        Storage::disk('private')->delete($propertyDocument->file_path);
         $propertyDocument->delete();
         return back()->with('success', 'Document deleted.');
     }

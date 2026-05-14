@@ -63,7 +63,7 @@ class AdminProjectUpdateController extends Controller
         // Upload documents
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $i => $file) {
-                $path = $file->store('project-update-documents/' . $update->id, 'local');
+                $path = $file->store('project-update-documents/' . $update->id, 'private');
                 ProjectUpdateDocument::create([
                     'project_update_id' => $update->id,
                     'title'             => $request->input("doc_titles.{$i}", $file->getClientOriginalName()),
@@ -89,7 +89,7 @@ class AdminProjectUpdateController extends Controller
 
     public function destroyDocument(ProjectUpdateDocument $document)
     {
-        Storage::disk('local')->delete($document->file_path);
+        Storage::disk('private')->delete($document->file_path);
         $document->delete();
         return back()->with('success', 'Document removed.');
     }

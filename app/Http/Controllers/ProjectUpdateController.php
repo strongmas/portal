@@ -95,9 +95,8 @@ class ProjectUpdateController extends Controller
         $update = $doc->update()->with('property')->first();
         abort_unless($propertyIds->contains($update->property_id), 403);
 
-        $path = Storage::disk('local')->path($doc->file_path);
-        abort_unless(file_exists($path), 404);
+        abort_unless(Storage::disk('private')->exists($doc->file_path), 404);
 
-        return response()->download($path, $doc->original_name);
+        return Storage::disk('private')->download($doc->file_path, $doc->original_name);
     }
 }
