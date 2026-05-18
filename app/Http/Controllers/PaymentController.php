@@ -117,66 +117,39 @@ class PaymentController extends Controller
     }
 
     /**
-     * Recalculate the instalment schedule from scratch based on current total paid.
-     * Called after both storing and deleting a payment.
+     * Recalculate the instalment schedule after a payment is added or removed.
+     * Rule: each payment (in chronological order) covers exactly one instalment.
+     * The instalment's recorded amount is updated to match the payment.
+     * The remaining outstanding balance is spread evenly across future slots.
      */
     public function recalculateSchedule(Ownership $ownership): void
     {
         $instalments = $ownership->instalments()->orderBy('instalment_number')->get();
         if ($instalments->isEmpty()) return;
 
-        $totalPaid   = (int) $ownership->payments()->sum('amount_kobo');
+        $payments    = $ownership->payments()->orderBy('paid_on')->orderBy('id')->get();
+        $totalPaid   = (int) $payments->sum('amount_kobo');
         $outstanding = max(0, (int) $ownership->agreed_price_kobo - $totalPaid);
 
-        $budget         = $totalPaid;
-        $paidUntilIndex = -1;
-
-        foreach ($instalments as $idx => $inst) {
-            if ($budget >= $inst->amount_kobo) {
-                $budget -= $inst->amount_kobo;
-                $paidUntilIndex = $idx;
-            } else {
-                break;
-            }
-        }
-
-        // For each paid instalment, find the payment whose cumulative total first
-        // crossed the instalment's running threshold — that payment "completed" it.
-        $paymentAtIndex = [];
-        if ($paidUntilIndex >= 0) {
-            $payments   = $ownership->payments()->orderBy('paid_on')->orderBy('id')->get();
-            $running    = 0;
-            $thresholds = [];
-            foreach ($instalments->take($paidUntilIndex + 1) as $idx => $inst) {
-                $running          += $inst->amount_kobo;
-                $thresholds[$idx]  = $running;
-            }
-            $cumulative = 0;
-            foreach ($payments as $payment) {
-                $cumulative += $payment->amount_kobo;
-                foreach ($thresholds as $idx => $threshold) {
-                    if (!isset($paymentAtIndex[$idx]) && $cumulative >= $threshold) {
-                        $paymentAtIndex[$idx] = $payment->id;
-                    }
-                }
-            }
-        }
-
-        $remainingCount = $instalments->count() - ($paidUntilIndex + 1);
+        $paidCount      = min($payments->count(), $instalments->count());
+        $remainingCount = $instalments->count() - $paidCount;
 
         $newAmountEach = ($remainingCount > 0 && $outstanding > 0)
             ? (int) floor($outstanding / $remainingCount)
             : 0;
 
-        $today       = now()->startOfDay();
-        $firstUnpaid = true;
+        $today        = now()->startOfDay();
+        $firstUnpaid  = true;
         $remainingIdx = 0;
 
         foreach ($instalments as $idx => $inst) {
-            if ($idx <= $paidUntilIndex) {
+            if ($idx < $paidCount) {
+                // Each payment maps 1-to-1 to one instalment in chronological order
+                $payment = $payments->get($idx);
                 $inst->update([
+                    'amount_kobo'     => $payment->amount_kobo,
                     'status'          => 'paid',
-                    'paid_payment_id' => $paymentAtIndex[$idx] ?? null,
+                    'paid_payment_id' => $payment->id,
                 ]);
             } else {
                 $remainingIdx++;
