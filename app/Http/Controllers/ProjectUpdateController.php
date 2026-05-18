@@ -45,7 +45,7 @@ class ProjectUpdateController extends Controller
 
         abort_unless($propertyIds->contains($projectUpdate->property_id), 403);
 
-        $projectUpdate->load(['documents', 'comments.user', 'poster', 'property.milestones']);
+        $projectUpdate->load(['images', 'comments.user', 'poster', 'property.milestones']);
 
         return view('project-updates.show', compact('projectUpdate'));
     }
