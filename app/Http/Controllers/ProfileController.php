@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +53,7 @@ class ProfileController extends Controller
             Storage::disk('public')->delete($user->avatar_path);
         }
 
-        $path = $request->file('avatar')->store('avatars', 'public');
+        $path = ImageService::store($request->file('avatar'), 'avatars', 'public', 400, 85);
         $user->update(['avatar_path' => $path]);
 
         return back()->with('success', 'Profile photo updated.');

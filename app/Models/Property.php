@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 class Property extends Model
 {
@@ -76,10 +77,10 @@ class Property extends Model
     {
         $images = $this->relationLoaded('images') ? $this->images : $this->images()->get();
         $cover  = $images->firstWhere('is_cover', true) ?? $images->first();
-        if ($cover) return asset('storage/' . $cover->path);
+        if ($cover) return Storage::disk('public')->url($cover->path);
 
         if ($this->cover_image_path) {
-            return asset('storage/' . $this->cover_image_path);
+            return Storage::disk('public')->url($this->cover_image_path);
         }
 
         return null;

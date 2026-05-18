@@ -166,6 +166,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('interests', [AdminInterestController::class, 'index'])->name('interests.index');
     Route::post('interests/{interest}/forward', [AdminInterestController::class, 'forward'])->name('interests.forward');
 
+    // Property Documents — admin uploads
+    Route::post('properties/{property}/documents', [AdminPropertyDocumentController::class, 'store'])->name('property-documents.store');
+
     // Property Documents (buyer-uploaded, admin reviews)
     Route::get('documents', [AdminPropertyDocumentController::class, 'index'])->name('documents.index');
     Route::patch('documents/{propertyDocument}/verify', [AdminPropertyDocumentController::class, 'verify'])->name('documents.verify');
@@ -179,6 +182,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('properties/{property}/project-updates/create', [AdminProjectUpdateController::class, 'create'])->name('project-updates.create');
     Route::post('properties/{property}/project-updates', [AdminProjectUpdateController::class, 'store'])->name('project-updates.store');
     Route::get('properties/{property}/project-updates/{projectUpdate}', [AdminProjectUpdateController::class, 'show'])->name('project-updates.show');
+    Route::delete('project-update-images/{image}', [AdminProjectUpdateController::class, 'destroyImage'])->name('project-update-images.destroy');
     Route::delete('project-update-documents/{document}', [AdminProjectUpdateController::class, 'destroyDocument'])->name('project-update-documents.destroy');
 
     // Milestones

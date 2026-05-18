@@ -68,6 +68,7 @@ class AdminPropertyController extends Controller
 
     public function edit(Property $property)
     {
+        $property->load(['documents' => fn($q) => $q->whereNull('ownership_id')->latest()]);
         return view('admin.properties.edit', compact('property'));
     }
 

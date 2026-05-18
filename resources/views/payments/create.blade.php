@@ -22,6 +22,7 @@
         amountDisplay: '',
         datePaid: '',
         method: 'Bank transfer',
+        submitting: false,
         bank: '',
         txnRef: '',
         proofName: '',
@@ -55,7 +56,8 @@
 
         {{-- ── Left: Form ─────────────────────────────────────────────────── --}}
         <div style="display:flex;flex-direction:column;gap:16px;">
-            <form method="POST" action="{{ route('payments.store') }}" enctype="multipart/form-data" id="payment-form">
+            <form method="POST" action="{{ route('payments.store') }}" enctype="multipart/form-data" id="payment-form"
+                  @submit="submitting = true">
                 @csrf
 
                 {{-- Property --}}
@@ -165,9 +167,9 @@
                     <div class="flex gap-3">
                         <a href="{{ route('home') }}" class="btn-ghost">Cancel</a>
                         <button type="submit" class="btn-primary" style="padding:12px 24px;font-size:15px;"
-                                :disabled="isOverpay"
-                                :style="isOverpay ? 'opacity:0.5;cursor:not-allowed;' : ''">
-                            Log payment →
+                                :disabled="isOverpay || submitting"
+                                :style="(isOverpay || submitting) ? 'opacity:0.5;cursor:not-allowed;' : ''"
+                                x-text="submitting ? 'Submitting…' : 'Log payment →'">
                         </button>
                     </div>
                 </div>

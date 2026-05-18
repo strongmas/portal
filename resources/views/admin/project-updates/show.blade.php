@@ -26,21 +26,25 @@
         </div>
         @endif
 
-        @if($projectUpdate->documents->count())
+        @if($projectUpdate->images->count())
         <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);">
-                <h2 style="font-size:15px;font-weight:600;color:var(--fg);">Documents</h2>
+            <div style="padding:16px 20px;border-bottom:1px solid var(--line);">
+                <h2 style="font-size:15px;font-weight:600;color:var(--fg);">Images ({{ $projectUpdate->images->count() }})</h2>
             </div>
-            <div style="padding:12px 20px;">
-                @foreach($projectUpdate->documents as $doc)
-                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);">
-                    <div style="flex:1;min-width:0;">
-                        <p style="font-size:13px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
-                        <p style="font-size:11px;color:var(--fg-mute);">{{ $doc->original_name }}</p>
-                    </div>
-                    <form method="POST" action="{{ route('admin.project-update-documents.destroy', $doc) }}">
+            <div style="padding:16px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;">
+                @foreach($projectUpdate->images as $img)
+                <div style="position:relative;border-radius:8px;overflow:hidden;background:var(--bg-raised);border:1px solid var(--line);">
+                    <img src="{{ $img->url }}" alt="{{ $img->caption }}"
+                         style="width:100%;height:140px;object-fit:cover;display:block;">
+                    @if($img->caption)
+                    <p style="font-size:11px;color:var(--fg-dim);padding:6px 8px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $img->caption }}</p>
+                    @endif
+                    <form method="POST" action="{{ route('admin.project-update-images.destroy', $img) }}"
+                          style="position:absolute;top:6px;right:6px;">
                         @csrf @method('DELETE')
-                        <button type="submit" style="font-size:12px;color:var(--danger);font-weight:600;background:none;border:none;cursor:pointer;">Remove</button>
+                        <button type="submit"
+                                style="width:26px;height:26px;display:grid;place-items:center;background:rgba(0,0,0,0.6);border:none;border-radius:6px;cursor:pointer;color:#fff;font-size:14px;line-height:1;"
+                                title="Remove" onclick="return confirm('Remove this image?')">×</button>
                     </form>
                 </div>
                 @endforeach

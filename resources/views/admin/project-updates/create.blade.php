@@ -45,27 +45,28 @@
                     </div>
                 </div>
 
-                {{-- Attach Documents (removable rows) --}}
+                {{-- Attach Images --}}
                 <div style="margin-bottom:20px;"
-                     x-data="{ docs: [{ id: 0 }], next: 1 }">
-                    <label class="eyebrow" style="display:block;margin-bottom:8px;">Attach Documents</label>
+                     x-data="{ images: [{ id: 0 }], next: 1 }">
+                    <label class="eyebrow" style="display:block;margin-bottom:8px;">Attach Images</label>
+                    <p style="font-size:12px;color:var(--fg-dim);margin:0 0 12px;">JPG, PNG or WebP · max 8 MB each · auto-compressed on save</p>
 
-                    <template x-for="(doc, idx) in docs" :key="doc.id">
-                        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;">
-                            <input type="text" :name="`doc_titles[${idx}]`" placeholder="Document title"
-                                   class="input-base" style="flex:1;">
-                            <input type="file" :name="`documents[${idx}]`" accept=".pdf,.jpg,.jpeg,.png"
-                                   class="input-base" style="flex:1;font-size:12px;">
-                            <button type="button" @click="docs.splice(idx, 1)"
-                                    x-show="docs.length > 1"
+                    <template x-for="(img, idx) in images" :key="img.id">
+                        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center;">
+                            <input type="file" :name="`images[${idx}]`" accept=".jpg,.jpeg,.png,.webp"
+                                   class="input-base" style="font-size:12px;padding:8px 10px;">
+                            <input type="text" :name="`captions[${idx}]`" placeholder="Caption (optional)"
+                                   class="input-base">
+                            <button type="button" @click="images.splice(idx, 1)"
+                                    x-show="images.length > 1"
                                     style="width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);cursor:pointer;font-size:16px;flex-shrink:0;"
                                     title="Remove">×</button>
                         </div>
                     </template>
 
-                    <button type="button" @click="docs.push({ id: next++ })"
+                    <button type="button" @click="images.push({ id: next++ })"
                             style="font-size:13px;color:var(--hi);font-weight:600;background:none;border:1px dashed var(--hi);border-radius:8px;cursor:pointer;padding:6px 14px;margin-top:2px;">
-                        + Add document
+                        + Add image
                     </button>
                 </div>
 

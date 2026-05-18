@@ -13,8 +13,9 @@ class PropertyDocumentController extends Controller
     {
         $user = auth()->user();
 
-        $ownerships = $user->ownerships()->with('property', 'unit')->get();
+        $ownerships   = $user->ownerships()->with('property', 'unit')->get();
         $ownershipIds = $ownerships->pluck('id');
+        $propertyIds  = $ownerships->pluck('property_id')->unique();
 
         $documents = PropertyDocument::whereIn('ownership_id', $ownershipIds)
             ->with('property')
@@ -22,7 +23,16 @@ class PropertyDocumentController extends Controller
             ->get()
             ->groupBy('ownership_id');
 
-        return view('documents.index', compact('documents', 'ownerships'));
+        // Admin-uploaded property-level documents visible to this buyer
+        $propertyDocuments = PropertyDocument::whereNull('ownership_id')
+            ->whereIn('property_id', $propertyIds)
+            ->where('is_buyer_visible', true)
+            ->with('property')
+            ->latest()
+            ->get()
+            ->groupBy('property_id');
+
+        return view('documents.index', compact('documents', 'ownerships', 'propertyDocuments'));
     }
 
     public function store(Request $request)

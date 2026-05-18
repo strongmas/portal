@@ -92,28 +92,23 @@
     </div>
     @endif
 
-    {{-- Documents --}}
-    @if($projectUpdate->documents->count())
+    {{-- Images --}}
+    @if($projectUpdate->images->count())
     <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:20px;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--fg-dim);"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <h3 style="font-size:14px;font-weight:700;color:var(--fg);margin:0;">Attached Documents</h3>
-            <span style="font-size:12px;background:var(--bg-raised);color:var(--fg-dim);padding:2px 8px;border-radius:99px;">{{ $projectUpdate->documents->count() }}</span>
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--fg-dim);"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <h3 style="font-size:14px;font-weight:700;color:var(--fg);margin:0;">Site Photos</h3>
+            <span style="font-size:12px;background:var(--bg-raised);color:var(--fg-dim);padding:2px 8px;border-radius:99px;">{{ $projectUpdate->images->count() }}</span>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-            @foreach($projectUpdate->documents as $doc)
-            <a href="{{ route('project-updates.documents.download', $doc) }}"
-               style="display:flex;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;text-decoration:none;background:var(--bg-raised);transition:all var(--dur-fast) var(--ease);"
-               onmouseover="this.style.borderColor='var(--line-tan)'" onmouseout="this.style.borderColor='var(--line)'">
-                <div style="width:36px;height:36px;border-radius:8px;background:var(--info-bg);border:1px solid var(--line-tan);display:grid;place-items:center;flex-shrink:0;">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--tan);"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div style="flex:1;min-width:0;">
-                    <p style="font-size:14px;font-weight:600;color:var(--fg);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
-                    <p style="font-size:12px;color:var(--fg-dim);margin:0;">{{ $doc->original_name }}</p>
-                </div>
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--fg-faint);flex-shrink:0;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </a>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+            @foreach($projectUpdate->images as $img)
+            <div style="border-radius:10px;overflow:hidden;background:var(--bg-raised);border:1px solid var(--line);">
+                <img src="{{ $img->url }}" alt="{{ $img->caption ?? '' }}"
+                     style="width:100%;height:160px;object-fit:cover;display:block;">
+                @if($img->caption)
+                <p style="font-size:12px;color:var(--fg-dim);padding:8px 10px;margin:0;border-top:1px solid var(--line);line-height:1.4;">{{ $img->caption }}</p>
+                @endif
+            </div>
             @endforeach
         </div>
     </div>

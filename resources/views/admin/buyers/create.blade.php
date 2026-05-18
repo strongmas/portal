@@ -21,6 +21,7 @@
         propertyId: '{{ old('property_id') }}',
         unitId: '{{ old('property_unit_id') }}',
         paymentPlan: '{{ old('payment_plan', 'instalment') }}',
+        instalmentFrequency: '{{ old('instalment_frequency', 'monthly') }}',
         allUnits: {{ $unitsMap }},
         get units() { return this.allUnits[this.propertyId] || []; },
         get isInstalment() { return this.paymentPlan === 'instalment'; },
@@ -125,10 +126,17 @@
                     </select>
                 </div>
                 <div x-show="isInstalment" x-cloak>
+                    <label class="eyebrow" style="display:block;margin-bottom:6px;">Instalment frequency <span style="color:var(--danger);">*</span></label>
+                    <select name="instalment_frequency" x-model="instalmentFrequency" :required="isInstalment" class="input-base">
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly (every 3 months)</option>
+                    </select>
+                </div>
+                <div x-show="isInstalment" x-cloak>
                     <label class="eyebrow" style="display:block;margin-bottom:6px;">Total instalments <span style="color:var(--danger);">*</span></label>
                     <input type="number" name="total_instalments" value="{{ old('total_instalments', 12) }}"
                            :required="isInstalment" min="1" max="120" class="input-base"/>
-                    <p style="font-size:12px;color:var(--fg-dim);margin-top:4px;">Schedule auto-generated on monthly intervals</p>
+                    <p style="font-size:12px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'quarterly' ? 'Schedule auto-generated on quarterly intervals' : 'Schedule auto-generated on monthly intervals'"></p>
                 </div>
                 <div>
                     <label class="eyebrow" style="display:block;margin-bottom:6px;">Start date</label>

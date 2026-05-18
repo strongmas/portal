@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\PropertyDocument;
 use Illuminate\Http\Request;
 
 class BrowseController extends Controller
@@ -52,6 +53,12 @@ class BrowseController extends Controller
             ->get(['id', 'property_unit_id'])
             ->keyBy('property_unit_id');
 
-        return view('browse.show', compact('property', 'myInterests'));
+        $propertyDocuments = PropertyDocument::where('property_id', $property->id)
+            ->whereNull('ownership_id')
+            ->where('is_buyer_visible', true)
+            ->latest()
+            ->get();
+
+        return view('browse.show', compact('property', 'myInterests', 'propertyDocuments'));
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\DocumentFlaggedMail;
+use App\Models\Property;
 use App\Models\PropertyDocument;
 use App\Notifications\DocumentFlaggedNotification;
 use Illuminate\Http\Request;
@@ -16,6 +17,40 @@ class AdminPropertyDocumentController extends Controller
     {
         $documents = PropertyDocument::with(['property', 'uploader'])->latest()->paginate(25);
         return view('admin.documents.index', compact('documents'));
+    }
+
+    public function store(Request $request, Property $property)
+    {
+        $validated = $request->validate([
+            'title'            => ['required', 'string', 'max:200'],
+            'document_type'    => ['required', 'in:contract,deed,survey,approval,report,receipt,offer_letter,other'],
+            'is_buyer_visible' => ['boolean'],
+            'file'             => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('property-documents/' . $property->id . '/admin', 'private');
+
+        $existing = PropertyDocument::where('property_id', $property->id)
+            ->whereNull('ownership_id')
+            ->where('document_type', $validated['document_type'])
+            ->where('title', $validated['title'])
+            ->max('version');
+
+        PropertyDocument::create([
+            'property_id'      => $property->id,
+            'ownership_id'     => null,
+            'title'            => $validated['title'],
+            'file_path'        => $path,
+            'original_name'    => $file->getClientOriginalName(),
+            'document_type'    => $validated['document_type'],
+            'version'          => $existing ? $existing + 1 : 1,
+            'is_buyer_visible' => $request->boolean('is_buyer_visible', true),
+            'uploaded_by'      => auth()->id(),
+            'status'           => 'verified',
+        ]);
+
+        return back()->with('success', 'Document uploaded and published to buyers.');
     }
 
     public function verify(PropertyDocument $propertyDocument)

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\PropertyUnit;
 use App\Models\UnitTypeImage;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,14 +18,14 @@ class AdminUnitImageController extends Controller
 
         $request->validate([
             'images'      => ['required', 'array', 'max:10'],
-            'images.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'images.*'    => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
             'room_type'   => ['required', 'in:exterior,bedroom,kitchen,bathroom,living_area'],
         ]);
 
         $nextOrder = $unit->images()->where('room_type', $request->room_type)->max('sort_order') + 1;
 
         foreach ($request->file('images') as $file) {
-            $path = $file->store("unit-images/{$property->id}/{$unit->id}", 'public');
+            $path = ImageService::store($file, "unit-images/{$property->id}/{$unit->id}", 'public', 1920, 82);
             $unit->images()->create([
                 'room_type'  => $request->room_type,
                 'path'       => $path,

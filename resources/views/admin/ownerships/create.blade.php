@@ -20,8 +20,11 @@
      x-data="{
         propertyId: '{{ old('property_id', $selectedProperty ?? '') }}',
         unitId: '{{ old('property_unit_id') }}',
+        paymentPlan: '{{ old('payment_plan', 'instalment') }}',
+        instalmentFrequency: '{{ old('instalment_frequency', 'monthly') }}',
         allUnits: {{ $unitsMap }},
         get units() { return this.allUnits[this.propertyId] || []; },
+        get isInstalment() { return this.paymentPlan === 'instalment'; },
         onPropertyChange() { this.unitId = ''; },
      }">
 
@@ -94,16 +97,23 @@
                 </div>
                 <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Payment plan <span style="color:var(--danger);">*</span></label>
-                    <select name="payment_plan" required class="input-base" style="width:100%;">
+                    <select name="payment_plan" required x-model="paymentPlan" class="input-base" style="width:100%;">
                         <option value="instalment" {{ old('payment_plan') !== 'outright' ? 'selected' : '' }}>Instalment</option>
                         <option value="outright" {{ old('payment_plan') === 'outright' ? 'selected' : '' }}>Outright</option>
+                    </select>
+                </div>
+                <div x-show="isInstalment" x-cloak>
+                    <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Instalment frequency</label>
+                    <select name="instalment_frequency" x-model="instalmentFrequency" class="input-base" style="width:100%;">
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly (every 3 months)</option>
                     </select>
                 </div>
                 <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Total instalments <span style="color:var(--danger);">*</span></label>
                     <input type="number" name="total_instalments" value="{{ old('total_instalments', 24) }}" required
                            min="1" max="360" class="input-base" style="width:100%;"/>
-                    <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;">Number of monthly payments</p>
+                    <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'quarterly' ? 'Number of quarterly payments' : 'Number of monthly payments'">Number of monthly payments</p>
                 </div>
                 <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Status</label>

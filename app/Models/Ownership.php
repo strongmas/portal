@@ -11,7 +11,7 @@ class Ownership extends Model
     protected $fillable = [
         'user_id', 'property_id', 'property_unit_id', 'agreed_price_kobo',
         'start_date', 'expected_completion_date',
-        'payment_plan', 'total_instalments', 'status',
+        'payment_plan', 'total_instalments', 'instalment_frequency', 'status',
         'purchase_date', 'current_value_kobo',
     ];
 

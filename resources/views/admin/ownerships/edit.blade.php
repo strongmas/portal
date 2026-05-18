@@ -70,6 +70,13 @@
                     </select>
                 </div>
                 <div>
+                    <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Instalment frequency</label>
+                    <select name="instalment_frequency" class="input-base" style="width:100%;">
+                        <option value="monthly" {{ ($ownership->instalment_frequency ?? 'monthly') === 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="quarterly" {{ ($ownership->instalment_frequency ?? '') === 'quarterly' ? 'selected' : '' }}>Quarterly (every 3 months)</option>
+                    </select>
+                </div>
+                <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Total instalments</label>
                     <input type="number" name="total_instalments" value="{{ old('total_instalments', $ownership->total_instalments) }}" required
                            min="1" max="360" class="input-base" style="width:100%;"/>

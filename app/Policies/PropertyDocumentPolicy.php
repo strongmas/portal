@@ -25,10 +25,21 @@ class PropertyDocumentPolicy
             return true;
         }
 
-        return \App\Models\Ownership::where('property_id', $document->property_id)
+        $memberAccess = \App\Models\Ownership::where('property_id', $document->property_id)
             ->whereHas('members', fn($q) => $q
                 ->where('user_id', $user->id)
                 ->whereNotNull('accepted_at')
             )->exists();
+
+        if ($memberAccess) return true;
+
+        // Allow interested buyers to download property-level admin documents
+        if (is_null($document->ownership_id)) {
+            return $user->interestRegistrations()
+                ->where('property_id', $document->property_id)
+                ->exists();
+        }
+
+        return false;
     }
 }

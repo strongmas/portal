@@ -64,9 +64,10 @@ class AdminBuyerController extends Controller
             'property_id'       => ['required', 'exists:properties,id'],
             'property_unit_id'  => ['nullable', 'exists:property_units,id'],
             'agreed_price'      => ['required', 'string'],
-            'payment_plan'      => ['required', 'in:outright,instalment'],
-            'total_instalments' => ['nullable', 'integer', 'min:1'],
-            'start_date'        => ['nullable', 'date'],
+            'payment_plan'          => ['required', 'in:outright,instalment'],
+            'instalment_frequency'  => ['nullable', 'in:monthly,quarterly'],
+            'total_instalments'     => ['nullable', 'integer', 'min:1'],
+            'start_date'            => ['nullable', 'date'],
         ]);
 
         $tempPassword = Str::random(12);
@@ -84,11 +85,12 @@ class AdminBuyerController extends Controller
             'user_id'           => $user->id,
             'property_id'       => $validated['property_id'],
             'property_unit_id'  => $validated['property_unit_id'] ?: null,
-            'agreed_price_kobo' => kobo($validated['agreed_price']),
-            'payment_plan'      => $validated['payment_plan'],
-            'total_instalments' => $validated['total_instalments'] ?? 1,
-            'start_date'        => $validated['start_date'] ?? now(),
-            'status'            => 'active',
+            'agreed_price_kobo'    => kobo($validated['agreed_price']),
+            'payment_plan'         => $validated['payment_plan'],
+            'instalment_frequency' => $validated['instalment_frequency'] ?? 'monthly',
+            'total_instalments'    => $validated['total_instalments'] ?? 1,
+            'start_date'           => $validated['start_date'] ?? now(),
+            'status'               => 'active',
         ]);
 
         if ($validated['payment_plan'] === 'instalment') {
@@ -177,10 +179,11 @@ class AdminBuyerController extends Controller
         $startDate  = ($ownership->start_date ?? now())->copy();
         $today      = now()->startOfDay();
         $firstMark  = false;
+        $interval   = ($ownership->instalment_frequency ?? 'monthly') === 'quarterly' ? 3 : 1;
         $rows       = [];
 
         for ($i = 1; $i <= $count; $i++) {
-            $dueDate = $startDate->copy()->addMonths($i - 1);
+            $dueDate = $startDate->copy()->addMonths(($i - 1) * $interval);
             $isLast  = ($i === $count);
             $amount  = $isLast ? max(0, $total - ($amountEach * ($count - 1))) : $amountEach;
 

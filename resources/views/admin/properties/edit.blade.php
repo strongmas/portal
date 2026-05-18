@@ -79,6 +79,99 @@
             <button type="submit" class="btn-primary" style="font-size:13px;">Save changes</button>
         </div>
     </form>
+
+    {{-- Property Documents (admin-uploaded) --}}
+    @if(session('success'))
+    <div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:10px;padding:12px 16px;margin-top:20px;font-size:13px;color:#065f46;">
+        {{ session('success') }}
+    </div>
+    @endif
+
+    <div class="card" style="padding:0;overflow:hidden;margin-top:24px;">
+        <div style="padding:20px 24px;border-bottom:1px solid var(--line);">
+            <h2 style="font-size:15px;font-weight:600;color:var(--fg);margin:0 0 4px;">Property Documents</h2>
+            <p style="font-size:12px;color:var(--fg-dim);margin:0;">Upload documents visible to all buyers and interested buyers of this property.</p>
+        </div>
+
+        {{-- Upload form --}}
+        <div style="padding:20px 24px;border-bottom:1px solid var(--line);" x-data="{ open: false }">
+            <button type="button" @click="open = !open"
+                    style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--hi);background:none;border:none;cursor:pointer;padding:0;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span x-text="open ? 'Cancel' : 'Upload Document'"></span>
+            </button>
+
+            <div x-show="open" x-cloak style="margin-top:16px;">
+                <form method="POST" action="{{ route('admin.property-documents.store', $property) }}"
+                      enctype="multipart/form-data" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    @csrf
+                    <div>
+                        <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Document title <span style="color:var(--danger);">*</span></label>
+                        <input type="text" name="title" required class="input-base" style="width:100%;"
+                               placeholder="e.g. Deed of Assignment"/>
+                    </div>
+                    <div>
+                        <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Document type <span style="color:var(--danger);">*</span></label>
+                        <select name="document_type" required class="input-base" style="width:100%;">
+                            <option value="">— select type —</option>
+                            <option value="offer_letter">Offer Letter</option>
+                            <option value="deed">Title Deed / Deed of Assignment</option>
+                            <option value="contract">Contract / Agreement</option>
+                            <option value="survey">Survey Plan</option>
+                            <option value="approval">Approval / Permit</option>
+                            <option value="report">Report</option>
+                            <option value="receipt">Receipt</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div style="grid-column:span 2;display:flex;align-items:center;gap:10px;">
+                        <input type="hidden" name="is_buyer_visible" value="0">
+                        <input type="checkbox" name="is_buyer_visible" id="doc_buyer_visible" value="1" checked
+                               style="width:15px;height:15px;accent-color:var(--hi);cursor:pointer;">
+                        <label for="doc_buyer_visible" style="font-size:13px;color:var(--fg);cursor:pointer;">Visible to buyers &amp; interested buyers</label>
+                    </div>
+                    <div style="grid-column:span 2;">
+                        <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">File <span style="color:var(--danger);">*</span></label>
+                        <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png"
+                               class="input-base" style="width:100%;padding:8px 12px;"/>
+                        <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;">PDF · JPG · PNG · max 10 MB</p>
+                    </div>
+                    <div style="grid-column:span 2;display:flex;justify-content:flex-end;">
+                        <button type="submit" class="btn-primary" style="font-size:13px;">Upload document →</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Existing documents --}}
+        @forelse($property->documents as $doc)
+        <div style="padding:14px 24px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;"
+             onmouseover="this.style.background='var(--bg-raised)'" onmouseout="this.style.background='transparent'">
+            <div style="flex:1;min-width:0;">
+                <p style="font-size:13px;font-weight:600;color:var(--fg);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
+                <p style="font-size:11px;color:var(--fg-dim);margin:0;">{{ $doc->type_label }} · v{{ $doc->version }} · {{ $doc->created_at->format('d M Y') }}</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;flex-shrink:0;">
+                @if($doc->is_buyer_visible)
+                    <span class="chip chip-ok" style="font-size:10px;padding:2px 8px;">Buyer visible</span>
+                @else
+                    <span class="chip chip-dark" style="font-size:10px;padding:2px 8px;">Hidden</span>
+                @endif
+                <a href="{{ route('admin.documents.download', $doc) }}"
+                   style="font-size:12px;font-weight:600;color:var(--hi);text-decoration:none;">Download</a>
+                <form method="POST" action="{{ route('admin.documents.destroy', $doc) }}"
+                      onsubmit="return confirm('Delete this document?')" style="display:inline;">
+                    @csrf @method('DELETE')
+                    <button type="submit" style="font-size:12px;color:var(--danger);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Delete</button>
+                </form>
+            </div>
+        </div>
+        @empty
+        <div style="padding:32px 24px;text-align:center;color:var(--fg-dim);">
+            <p style="font-size:13px;margin:0;">No documents uploaded for this property yet.</p>
+        </div>
+        @endforelse
+    </div>
 </div>
 
 </x-layouts.admin>

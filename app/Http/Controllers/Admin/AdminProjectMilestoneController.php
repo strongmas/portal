@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProjectMilestone;
 use App\Models\Property;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,7 +32,7 @@ class AdminProjectMilestoneController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('milestone-images/' . $property->id, 'public');
+            $data['image_path'] = ImageService::store($request->file('image'), 'milestone-images/' . $property->id, 'public', 1200, 82);
         }
 
         $property->milestones()->create($data);
@@ -54,7 +55,7 @@ class AdminProjectMilestoneController extends Controller
             if ($milestone->image_path) {
                 Storage::disk('public')->delete($milestone->image_path);
             }
-            $validated['image_path'] = $request->file('image')->store('milestone-images/' . $property->id, 'public');
+            $validated['image_path'] = ImageService::store($request->file('image'), 'milestone-images/' . $property->id, 'public', 1200, 82);
         }
 
         $milestone->update($validated);

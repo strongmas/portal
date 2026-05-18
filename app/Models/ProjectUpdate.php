@@ -30,6 +30,11 @@ class ProjectUpdate extends Model
         return $this->hasMany(ProjectUpdateDocument::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProjectUpdateImage::class)->orderBy('sort_order');
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(UpdateComment::class);

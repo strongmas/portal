@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\ProjectUpdatePosted;
 use App\Http\Controllers\Controller;
-use App\Models\Project;
-use App\Models\ProjectMilestone;
-use App\Models\ProjectUpdate;
 use App\Models\ProjectUpdateDocument;
+use App\Models\ProjectUpdateImage;
+use App\Models\ProjectUpdate;
 use App\Models\Property;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,10 +38,10 @@ class AdminProjectUpdateController extends Controller
             'stage'                => ['nullable', 'string', 'max:100'],
             'youtube_url'          => ['nullable', 'url', 'max:500'],
             'estimated_completion' => ['nullable', 'date'],
-            'documents'            => ['nullable', 'array'],
-            'documents.*'          => ['file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'doc_titles'           => ['nullable', 'array'],
-            'doc_titles.*'         => ['string', 'max:200'],
+            'images'               => ['nullable', 'array', 'max:10'],
+            'images.*'             => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+            'captions'             => ['nullable', 'array'],
+            'captions.*'           => ['nullable', 'string', 'max:200'],
         ]);
 
         $update = ProjectUpdate::create([
@@ -55,21 +55,25 @@ class AdminProjectUpdateController extends Controller
             'posted_by'            => auth()->id(),
         ]);
 
-        // Also update property project_status if progress is 100
         if ($validated['progress_percentage'] >= 100) {
             $property->update(['project_status' => 'completed', 'is_off_plan' => false]);
         }
 
-        // Upload documents
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $i => $file) {
-                $path = $file->store('project-update-documents/' . $update->id, 'private');
-                ProjectUpdateDocument::create([
+        if ($request->hasFile('images')) {
+            $order = 0;
+            foreach ($request->file('images') as $i => $file) {
+                $path = ImageService::store(
+                    $file,
+                    'project-update-images/' . $update->id,
+                    'public',
+                    1920,
+                    82
+                );
+                ProjectUpdateImage::create([
                     'project_update_id' => $update->id,
-                    'title'             => $request->input("doc_titles.{$i}", $file->getClientOriginalName()),
-                    'file_path'         => $path,
-                    'original_name'     => $file->getClientOriginalName(),
-                    'uploaded_by'       => auth()->id(),
+                    'path'              => $path,
+                    'caption'           => $request->input("captions.{$i}") ?: null,
+                    'sort_order'        => $order++,
                 ]);
             }
         }
@@ -82,11 +86,19 @@ class AdminProjectUpdateController extends Controller
 
     public function show(Property $property, ProjectUpdate $projectUpdate)
     {
-        $projectUpdate->load(['documents', 'comments.user', 'poster']);
+        $projectUpdate->load(['images', 'documents', 'comments.user', 'poster']);
         $milestones = $property->milestones()->orderBy('sort_order')->get();
         return view('admin.project-updates.show', compact('property', 'projectUpdate', 'milestones'));
     }
 
+    public function destroyImage(ProjectUpdateImage $image)
+    {
+        Storage::disk('public')->delete($image->path);
+        $image->delete();
+        return back()->with('success', 'Image removed.');
+    }
+
+    // Kept for backward-compatibility with existing document data
     public function destroyDocument(ProjectUpdateDocument $document)
     {
         Storage::disk('private')->delete($document->file_path);

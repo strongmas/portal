@@ -122,6 +122,33 @@
     </div>
     @endforelse
 
+    {{-- Property Documents (admin-uploaded, visible to all) --}}
+    @if(isset($propertyDocuments) && $propertyDocuments->isNotEmpty())
+    <div style="margin-top:32px;">
+        <h2 style="font-size:18px;font-weight:700;color:var(--fg);letter-spacing:-0.01em;margin-bottom:4px;">Property Documents</h2>
+        <p style="font-size:13px;color:var(--fg-dim);margin:0 0 16px;">Official documents shared by Strongmas for this development.</p>
+        <div class="card" style="padding:0;overflow:hidden;">
+            @foreach($propertyDocuments as $doc)
+            <div style="padding:16px 20px;border-bottom:1px solid var(--line);{{ $loop->last ? 'border-bottom:none;' : '' }}display:flex;align-items:center;gap:14px;"
+                 onmouseover="this.style.background='var(--bg-raised)'" onmouseout="this.style.background='transparent'">
+                <div style="width:36px;height:36px;border-radius:8px;background:var(--tan)18;display:grid;place-items:center;flex-shrink:0;">
+                    <svg width="17" height="17" fill="none" stroke="var(--tan)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:14px;font-weight:600;color:var(--fg);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
+                    <p style="font-size:12px;color:var(--fg-dim);margin:0;">{{ $doc->type_label }} · {{ $doc->created_at->format('d M Y') }}</p>
+                </div>
+                <a href="{{ route('documents.download', $doc) }}"
+                   style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--hi);text-decoration:none;white-space:nowrap;flex-shrink:0;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Simple lightbox --}}
     <div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;"
          onclick="document.getElementById('lightbox').style.display='none'">

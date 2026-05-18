@@ -160,5 +160,43 @@
             <p style="margin:0;font-size:13px;">Use the form above to upload documents sent to you by the company.</p>
         </div>
         @endforelse
+
+        {{-- Company documents (admin-uploaded, property-level) --}}
+        @if(isset($propertyDocuments) && $propertyDocuments->isNotEmpty())
+        <div style="margin-top:32px;">
+            <h2 style="font-size:16px;font-weight:700;color:var(--fg);margin:0 0 4px;">Company Documents</h2>
+            <p style="font-size:13px;color:var(--fg-dim);margin:0 0 16px;">Documents shared by Strongmas for your property.</p>
+
+            @foreach($propertyDocuments as $propertyId => $docs)
+            @php $propName = $docs->first()->property?->development_name ?? 'Property'; @endphp
+            <div style="margin-bottom:20px;">
+                <p style="font-size:12px;font-weight:700;color:var(--fg-mute);text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px;">
+                    {{ $propName }}
+                </p>
+                <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:14px;overflow:hidden;">
+                    @foreach($docs as $doc)
+                    <div style="padding:16px 20px;border-bottom:1px solid var(--line);{{ $loop->last ? 'border-bottom:none;' : '' }}">
+                        <div style="display:flex;gap:14px;align-items:center;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:var(--tan)18;display:grid;place-items:center;flex-shrink:0;">
+                                <svg width="18" height="18" fill="none" stroke="var(--tan)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <p style="font-size:14px;font-weight:600;color:var(--fg);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
+                                <p style="font-size:12px;color:var(--fg-dim);margin:0;">{{ $doc->type_label }} · {{ $doc->created_at->format('d M Y') }}</p>
+                            </div>
+                            <span class="chip chip-ok" style="font-size:10px;padding:2px 8px;flex-shrink:0;">From Strongmas</span>
+                            <a href="{{ route('documents.download', $doc) }}"
+                               style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--hi);text-decoration:none;white-space:nowrap;flex-shrink:0;">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
     </div>
 </x-portal-layout>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\PropertyImage;
+use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,13 +15,13 @@ class AdminPropertyImageController extends Controller
     {
         $request->validate([
             'images'   => ['required', 'array', 'max:10'],
-            'images.*' => ['image', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
         ]);
 
         $nextOrder = $property->images()->max('sort_order') + 1;
 
         foreach ($request->file('images') as $file) {
-            $path = $file->store('property-images/' . $property->id, 'public');
+            $path = ImageService::store($file, 'property-images/' . $property->id, 'public', 1920, 82);
             $property->images()->create([
                 'path'       => $path,
                 'sort_order' => $nextOrder++,
