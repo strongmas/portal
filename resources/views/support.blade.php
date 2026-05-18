@@ -71,7 +71,7 @@
                     <div style="font-size:12px;color:var(--ok);margin-top:1px;">● Online</div>
                 </div>
             </div>
-            <a href="tel:07007867666627"
+            <a href="tel:09010777777"
                style="font-size:13px;color:var(--fg-dim);text-decoration:none;display:flex;align-items:center;gap:6px;"
                onmouseover="this.style.color='var(--tan)'" onmouseout="this.style.color='var(--fg-dim)'">
                 <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -165,9 +165,9 @@
                       color:rgba(176,196,221,.45);margin:0 0 12px;">Other ways to reach us</p>
             <div style="display:flex;flex-direction:column;gap:7px;">
                 @foreach([
-                    ['tel:07007867666627',           '📞', 'Call us',   '0700-STRONGMAS',        false],
-                    ['mailto:hello@strongmasng.com', '✉',  'Email us',  'hello@strongmasng.com', false],
-                    ['https://wa.me/2348034441209',  '💬', 'WhatsApp',  '0803 444 1209',         true],
+                    ['tel:09010777777',               '📞', 'Call us',   '0901 077 7777',         false],
+                    ['mailto:hello@strongmas.ng',    '✉',  'Email us',  'hello@strongmas.ng',    false],
+                    ['https://wa.me/2349010777777',  '💬', 'WhatsApp',  '0901 077 7777',         true],
                 ] as [$href, $icon, $label, $sub, $blank])
                 <a href="{{ $href }}" {{ $blank ? 'target=_blank' : '' }}
                    style="display:flex;align-items:center;gap:11px;padding:10px 13px;

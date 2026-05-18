@@ -142,7 +142,7 @@
                 Scan the QR code to verify this receipt online, or log in at <strong>portal.strongmas.ng</strong>.
             </div>
             <div style="margin-top:10px;font-size:10px;color:#7a7469;">
-                Strongmas Realty Ltd · hello@strongmas.ng · 0700-STRONGMAS
+                Strongmas Realty Ltd · hello@strongmas.ng · 0901 077 7777
             </div>
         </div>
         <div class="qr-box"></div>
