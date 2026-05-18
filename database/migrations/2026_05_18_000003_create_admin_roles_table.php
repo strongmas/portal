@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->json('permissions')->default('[]');
+            $table->json('permissions')->nullable();
             $table->timestamps();
         });
     }
