@@ -9,7 +9,7 @@ class ProjectUpdateDocument extends Model
 {
     protected $fillable = ['project_update_id', 'title', 'file_path', 'original_name', 'uploaded_by'];
 
-    public function update(): BelongsTo
+    public function projectUpdate(): BelongsTo
     {
         return $this->belongsTo(ProjectUpdate::class, 'project_update_id');
     }

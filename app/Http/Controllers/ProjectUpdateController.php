@@ -92,7 +92,7 @@ class ProjectUpdateController extends Controller
             ->merge($user->memberOwnerships()->pluck('ownerships.property_id'))
             ->unique();
 
-        $update = $doc->update()->with('property')->first();
+        $update = $doc->projectUpdate()->with('property')->first();
         abort_unless($propertyIds->contains($update->property_id), 403);
 
         abort_unless(Storage::disk('private')->exists($doc->file_path), 404);
