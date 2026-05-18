@@ -74,6 +74,7 @@
                     <select name="instalment_frequency" class="input-base" style="width:100%;">
                         <option value="monthly" {{ ($ownership->instalment_frequency ?? 'monthly') === 'monthly' ? 'selected' : '' }}>Monthly</option>
                         <option value="quarterly" {{ ($ownership->instalment_frequency ?? '') === 'quarterly' ? 'selected' : '' }}>Quarterly (every 3 months)</option>
+                        <option value="bi-annually" {{ ($ownership->instalment_frequency ?? '') === 'bi-annually' ? 'selected' : '' }}>Bi-annually (every 6 months)</option>
                     </select>
                 </div>
                 <div>

@@ -130,13 +130,14 @@
                     <select name="instalment_frequency" x-model="instalmentFrequency" :required="isInstalment" class="input-base">
                         <option value="monthly">Monthly</option>
                         <option value="quarterly">Quarterly (every 3 months)</option>
+                        <option value="bi-annually">Bi-annually (every 6 months)</option>
                     </select>
                 </div>
                 <div x-show="isInstalment" x-cloak>
                     <label class="eyebrow" style="display:block;margin-bottom:6px;">Total instalments <span style="color:var(--danger);">*</span></label>
                     <input type="number" name="total_instalments" value="{{ old('total_instalments', 12) }}"
                            :required="isInstalment" min="1" max="120" class="input-base"/>
-                    <p style="font-size:12px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'quarterly' ? 'Schedule auto-generated on quarterly intervals' : 'Schedule auto-generated on monthly intervals'"></p>
+                    <p style="font-size:12px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'bi-annually' ? 'Schedule auto-generated on bi-annual intervals' : instalmentFrequency === 'quarterly' ? 'Schedule auto-generated on quarterly intervals' : 'Schedule auto-generated on monthly intervals'"></p>
                 </div>
                 <div>
                     <label class="eyebrow" style="display:block;margin-bottom:6px;">Start date</label>

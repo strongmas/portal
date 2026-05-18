@@ -39,7 +39,7 @@
                                 {{ naira($nextDue->amount_kobo) }}
                             </div>
                             <div style="font-size:14px;color:var(--fg-mute);margin-top:6px;">
-                                Due in <strong style="color:var(--tan);">{{ (int) now()->diffInDays($nextDue->due_date) }} days</strong>
+                                Due in <strong style="color:var(--tan);">{{ due_in($nextDue->due_date) }}</strong>
                                 · {{ $nextDue->due_date->format('j M Y') }}
                             </div>
                         </div>

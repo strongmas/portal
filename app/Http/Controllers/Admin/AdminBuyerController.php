@@ -65,7 +65,7 @@ class AdminBuyerController extends Controller
             'property_unit_id'  => ['nullable', 'exists:property_units,id'],
             'agreed_price'      => ['required', 'string'],
             'payment_plan'          => ['required', 'in:outright,instalment'],
-            'instalment_frequency'  => ['nullable', 'in:monthly,quarterly'],
+            'instalment_frequency'  => ['nullable', 'in:monthly,quarterly,bi-annually'],
             'total_instalments'     => ['nullable', 'integer', 'min:1'],
             'start_date'            => ['nullable', 'date'],
         ]);
@@ -179,7 +179,11 @@ class AdminBuyerController extends Controller
         $startDate  = ($ownership->start_date ?? now())->copy();
         $today      = now()->startOfDay();
         $firstMark  = false;
-        $interval   = ($ownership->instalment_frequency ?? 'monthly') === 'quarterly' ? 3 : 1;
+        $interval   = match ($ownership->instalment_frequency ?? 'monthly') {
+            'quarterly'   => 3,
+            'bi-annually' => 6,
+            default       => 1,
+        };
         $rows       = [];
 
         for ($i = 1; $i <= $count; $i++) {

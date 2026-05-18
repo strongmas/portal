@@ -38,7 +38,7 @@ class AdminOwnershipController extends Controller
             'property_unit_id'         => ['nullable', 'exists:property_units,id'],
             'agreed_price'             => ['required', 'string'],
             'payment_plan'             => ['required', 'in:outright,instalment'],
-            'instalment_frequency'     => ['nullable', 'in:monthly,quarterly'],
+            'instalment_frequency'     => ['nullable', 'in:monthly,quarterly,bi-annually'],
             'total_instalments'        => ['required', 'integer', 'min:1', 'max:360'],
             'start_date'               => ['required', 'date'],
             'expected_completion_date' => ['nullable', 'date', 'after:start_date'],
@@ -89,7 +89,7 @@ class AdminOwnershipController extends Controller
             'property_unit_id'         => ['nullable', 'exists:property_units,id'],
             'agreed_price'             => ['required', 'string'],
             'payment_plan'             => ['required', 'in:outright,instalment'],
-            'instalment_frequency'     => ['nullable', 'in:monthly,quarterly'],
+            'instalment_frequency'     => ['nullable', 'in:monthly,quarterly,bi-annually'],
             'total_instalments'        => ['required', 'integer', 'min:1', 'max:360'],
             'start_date'               => ['required', 'date'],
             'expected_completion_date' => ['nullable', 'date'],
@@ -135,7 +135,11 @@ class AdminOwnershipController extends Controller
         $remainder = $ownership->agreed_price_kobo - ($base * $total);
         $start     = Carbon::parse($ownership->start_date);
         $today     = now();
-        $interval  = ($ownership->instalment_frequency ?? 'monthly') === 'quarterly' ? 3 : 1;
+        $interval  = match ($ownership->instalment_frequency ?? 'monthly') {
+            'quarterly'   => 3,
+            'bi-annually' => 6,
+            default       => 1,
+        };
 
         for ($i = 1; $i <= $total; $i++) {
             $due    = $start->copy()->addMonths(($i - 1) * $interval);

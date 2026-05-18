@@ -107,13 +107,14 @@
                     <select name="instalment_frequency" x-model="instalmentFrequency" class="input-base" style="width:100%;">
                         <option value="monthly">Monthly</option>
                         <option value="quarterly">Quarterly (every 3 months)</option>
+                        <option value="bi-annually">Bi-annually (every 6 months)</option>
                     </select>
                 </div>
                 <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Total instalments <span style="color:var(--danger);">*</span></label>
                     <input type="number" name="total_instalments" value="{{ old('total_instalments', 24) }}" required
                            min="1" max="360" class="input-base" style="width:100%;"/>
-                    <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'quarterly' ? 'Number of quarterly payments' : 'Number of monthly payments'">Number of monthly payments</p>
+                    <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;" x-text="instalmentFrequency === 'bi-annually' ? 'Number of bi-annual payments' : instalmentFrequency === 'quarterly' ? 'Number of quarterly payments' : 'Number of monthly payments'">Number of monthly payments</p>
                 </div>
                 <div>
                     <label style="display:block;font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-dim);margin-bottom:6px;">Status</label>

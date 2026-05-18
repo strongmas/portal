@@ -20,3 +20,19 @@ if (!function_exists('kobo')) {
         return (int) round((float) $clean * 100);
     }
 }
+
+if (!function_exists('due_in')) {
+    function due_in(\Carbon\Carbon $date): string
+    {
+        $days = (int) now()->startOfDay()->diffInDays($date->copy()->startOfDay());
+        if ($days <= 6) {
+            return $days === 1 ? '1 day' : "{$days} days";
+        }
+        if ($days <= 28) {
+            $weeks = max(1, (int) round($days / 7));
+            return $weeks === 1 ? '1 week' : "{$weeks} weeks";
+        }
+        $months = max(1, (int) round($days / 30.44));
+        return $months === 1 ? '1 month' : "{$months} months";
+    }
+}
