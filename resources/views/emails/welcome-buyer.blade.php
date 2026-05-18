@@ -75,9 +75,9 @@
 
         <p><strong>Need help?</strong> Our support team is always ready:</p>
         <ul class="contacts">
-            <li>📞 Call &nbsp;· &nbsp;0700-STRONGMAS (0700‑786‑766‑627)</li>
+            <li>📞 Call &nbsp;· &nbsp;0700-STRONGMAS (0901‑077‑77‑77)</li>
             <li>📧 Email · <a href="mailto:hello@strongmas.ng" style="color:#111827;">hello@strongmas.ng</a></li>
-            <li>💬 WhatsApp · <a href="https://wa.me/2348034441209" style="color:#111827;">0803 444 1209</a></li>
+            <li>💬 WhatsApp · <a href="https://wa.me/2349010777777" style="color:#111827;">0901 077 7777</a></li>
         </ul>
     </div>
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'first_name', 'last_name', 'email', 'phone',
         'password', 'kyc_verified_at', 'avatar_path',
-        'address', 'bvn_masked', 'is_admin', 'sales_rep_id',
+        'address', 'bvn_masked', 'is_admin', 'admin_role_id', 'sales_rep_id',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -32,6 +33,43 @@ class User extends Authenticatable
             'password'          => 'hashed',
             'is_admin'          => 'boolean',
         ];
+    }
+
+    // ── Admin role helpers ─────────────────────────────────────────────────
+
+    public function adminRole(): BelongsTo
+    {
+        return $this->belongsTo(AdminRole::class);
+    }
+
+    /** Super admin: is_admin with no restricted role assigned. */
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_admin && is_null($this->admin_role_id);
+    }
+
+    /** Staff member: is_admin but with a restricted role. */
+    public function isStaff(): bool
+    {
+        return $this->is_admin && !is_null($this->admin_role_id);
+    }
+
+    /** Returns true if user can perform an action (super admins can do everything). */
+    public function adminCan(string $permission): bool
+    {
+        if (!$this->is_admin) return false;
+        if ($this->isSuperAdmin()) return true;
+        return $this->adminRole?->hasPermission($permission) ?? false;
+    }
+
+    /** Query scope: admin users who have a specific permission. */
+    public function scopeWithAdminPermission(Builder $query, string $permission): Builder
+    {
+        return $query->where('is_admin', true)
+            ->where(function ($q) use ($permission) {
+                $q->whereNull('admin_role_id')
+                  ->orWhereHas('adminRole', fn($q2) => $q2->whereJsonContains('permissions', $permission));
+            });
     }
 
     // ── Existing relationships ─────────────────────────────────────────────

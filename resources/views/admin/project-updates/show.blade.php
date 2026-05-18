@@ -86,18 +86,34 @@
             <div style="padding:16px 20px;">
                 @forelse($projectUpdate->comments as $comment)
                 <div style="display:flex;gap:12px;margin-bottom:12px;">
-                    <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-raised);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--hi);flex-shrink:0;">{{ $comment->user->initials }}</div>
-                    <div style="flex:1;background:var(--bg-raised);border-radius:8px;padding:10px 12px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:{{ $comment->user->is_admin ? 'var(--hi)' : 'var(--bg-raised)' }};border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:{{ $comment->user->is_admin ? '#000' : 'var(--hi)' }};flex-shrink:0;">{{ $comment->user->initials }}</div>
+                    <div style="flex:1;background:{{ $comment->user->is_admin ? 'rgba(var(--hi-rgb,240,196,80),0.08)' : 'var(--bg-raised)' }};border-radius:8px;padding:10px 12px;border:1px solid {{ $comment->user->is_admin ? 'var(--hi)' : 'transparent' }};">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                            <p style="font-size:12px;font-weight:600;color:var(--fg);">{{ $comment->user->name }}</p>
+                            <p style="font-size:12px;font-weight:600;color:var(--fg);">
+                                {{ $comment->user->name }}
+                                @if($comment->user->is_admin)
+                                    <span style="font-size:10px;background:var(--hi);color:#000;border-radius:4px;padding:1px 6px;margin-left:4px;font-weight:700;">TEAM</span>
+                                @endif
+                            </p>
                             <p style="font-size:11px;color:var(--fg-mute);">{{ $comment->created_at->diffForHumans() }}</p>
                         </div>
                         <p style="font-size:13px;color:var(--fg-dim);">{{ $comment->body }}</p>
                     </div>
                 </div>
                 @empty
-                <p style="font-size:13px;color:var(--fg-mute);">No comments yet.</p>
+                <p style="font-size:13px;color:var(--fg-mute);margin-bottom:16px;">No comments yet.</p>
                 @endforelse
+
+                {{-- Admin reply form --}}
+                <div style="border-top:1px solid var(--line);padding-top:16px;margin-top:{{ $projectUpdate->comments->count() ? '8px' : '0' }};">
+                    <p style="font-size:12px;font-weight:600;color:var(--fg-dim);margin-bottom:8px;">Reply as {{ auth()->user()->name }}</p>
+                    <form method="POST" action="{{ route('admin.project-updates.comments.store', [$property, $projectUpdate]) }}">
+                        @csrf
+                        <textarea name="body" rows="3" placeholder="Type your reply to buyers…"
+                                  class="input-base" style="resize:vertical;margin-bottom:10px;" required></textarea>
+                        <button type="submit" class="btn-primary" style="font-size:13px;">Post Reply</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

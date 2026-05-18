@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\StaffAlertMail;
 use App\Models\Instalment;
 use App\Models\Ownership;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
@@ -73,6 +76,19 @@ class PaymentController extends Controller
         ]);
 
         $this->recalculateSchedule($ownership);
+
+        // Notify staff with 'payments' permission
+        $buyer = $request->user();
+        $ownership->load('property');
+        User::withAdminPermission('payments')->each(function ($staff) use ($buyer, $ownership, $validated) {
+            Mail::to($staff->email)->send(new StaffAlertMail(
+                alertSubject: "New payment submitted by {$buyer->name}",
+                heading: "Payment submitted for review",
+                body: "Buyer: {$buyer->name}\nProperty: {$ownership->property->development_name}\nAmount: " . naira(kobo($validated['amount'])) . "\nReference: {$validated['reference']}",
+                actionUrl: route('admin.payments.index'),
+                actionLabel: 'View Payments',
+            ));
+        });
 
         return redirect()->route('properties.show', $ownership)
             ->with('success', 'Payment logged. Your balance and instalment schedule have been updated.');

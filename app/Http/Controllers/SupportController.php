@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\StaffAlertMail;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class SupportController extends Controller
@@ -67,6 +70,18 @@ class SupportController extends Controller
 
         $msg = SupportMessage::create($data);
 
+        // Notify staff with 'support' permission
+        $buyer = $request->user();
+        User::withAdminPermission('support')->each(function ($staff) use ($buyer) {
+            Mail::to($staff->email)->send(new StaffAlertMail(
+                alertSubject: "New chat message from {$buyer->name}",
+                heading: "New support message",
+                body: "{$buyer->name} sent a new chat message.\nCheck the support chat to respond.",
+                actionUrl: route('admin.support.index'),
+                actionLabel: 'View Chat',
+            ));
+        });
+
         return response()->json([
             'id'             => $msg->id,
             'sender'         => 'buyer',
@@ -117,6 +132,18 @@ class SupportController extends Controller
             'category'    => $validated['category'],
             'body'        => $validated['body'],
         ]);
+
+        // Notify staff with 'tickets' permission
+        $buyer = $request->user();
+        User::withAdminPermission('tickets')->each(function ($staff) use ($buyer, $ticket) {
+            Mail::to($staff->email)->send(new StaffAlertMail(
+                alertSubject: "New support ticket [{$ticket->case_no}] from {$buyer->name}",
+                heading: "New support ticket: {$ticket->case_no}",
+                body: "Category: {$ticket->category}\nFrom: {$buyer->name}\n\n{$ticket->body}",
+                actionUrl: route('admin.tickets.show', $ticket),
+                actionLabel: 'View Ticket',
+            ));
+        });
 
         if ($request->wantsJson()) {
             return response()->json(['case_no' => $ticket->case_no]);

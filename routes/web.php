@@ -13,7 +13,9 @@ use App\Http\Controllers\Admin\AdminProjectUpdateController;
 use App\Http\Controllers\Admin\AdminPropertyDocumentController;
 use App\Http\Controllers\Admin\AdminPropertyImageController;
 use App\Http\Controllers\Admin\AdminPropertyValueController;
+use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminSalesRepController;
+use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminSupportController;
 use App\Http\Controllers\Admin\AdminPropertyController;
 use App\Http\Controllers\Admin\AdminUnitImageController;
@@ -135,71 +137,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Buyers + Sales Rep assignment
-    Route::resource('buyers', AdminBuyerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
-    Route::post('buyers/{buyer}/sales-rep', [AdminSalesRepController::class, 'assignToBuyer'])->name('buyers.assign-rep');
-    Route::post('buyers/{buyer}/reset-password', [AdminBuyerController::class, 'resetPassword'])->name('buyers.reset-password');
+    // ── Available to all admin users (super + staff) ──────────────────────
 
-    // Sales Reps
-    Route::get('sales-reps', [AdminSalesRepController::class, 'index'])->name('sales-reps.index');
-    Route::post('sales-reps', [AdminSalesRepController::class, 'store'])->name('sales-reps.store');
-    Route::patch('sales-reps/{salesRep}', [AdminSalesRepController::class, 'update'])->name('sales-reps.update');
-    Route::delete('sales-reps/{salesRep}', [AdminSalesRepController::class, 'destroy'])->name('sales-reps.destroy');
-
-    // Properties + unit management
-    Route::resource('properties', AdminPropertyController::class);
-    Route::post('properties/{property}/units', [AdminPropertyController::class, 'storeUnit'])->name('properties.units.store');
-    Route::patch('properties/{property}/units/{unit}', [AdminPropertyController::class, 'updateUnit'])->name('properties.units.update');
-    Route::delete('properties/{property}/units/{unit}', [AdminPropertyController::class, 'destroyUnit'])->name('properties.units.destroy');
-
-    // Property Images
-    Route::post('properties/{property}/images', [AdminPropertyImageController::class, 'store'])->name('property-images.store');
-    Route::post('properties/{property}/images/{image}/cover', [AdminPropertyImageController::class, 'setCover'])->name('property-images.cover');
-    Route::post('properties/{property}/images/reorder', [AdminPropertyImageController::class, 'reorder'])->name('property-images.reorder');
-    Route::delete('properties/{property}/images/{image}', [AdminPropertyImageController::class, 'destroy'])->name('property-images.destroy');
-
-    // Unit Type Images
-    Route::post('properties/{property}/units/{unit}/images', [AdminUnitImageController::class, 'store'])->name('unit-images.store');
-    Route::delete('properties/{property}/units/{unit}/images/{image}', [AdminUnitImageController::class, 'destroy'])->name('unit-images.destroy');
-
-    // Interest Registrations
-    Route::get('interests', [AdminInterestController::class, 'index'])->name('interests.index');
-    Route::post('interests/{interest}/forward', [AdminInterestController::class, 'forward'])->name('interests.forward');
-
-    // Property Documents — admin uploads
-    Route::post('properties/{property}/documents', [AdminPropertyDocumentController::class, 'store'])->name('property-documents.store');
-
-    // Property Documents (buyer-uploaded, admin reviews)
-    Route::get('documents', [AdminPropertyDocumentController::class, 'index'])->name('documents.index');
-    Route::patch('documents/{propertyDocument}/verify', [AdminPropertyDocumentController::class, 'verify'])->name('documents.verify');
-    Route::patch('documents/{propertyDocument}/flag', [AdminPropertyDocumentController::class, 'flag'])->name('documents.flag');
-    Route::patch('documents/{propertyDocument}/unflag', [AdminPropertyDocumentController::class, 'unflag'])->name('documents.unflag');
-    Route::get('documents/{propertyDocument}/download', [AdminPropertyDocumentController::class, 'adminDownload'])->name('documents.download');
-    Route::delete('documents/{propertyDocument}', [AdminPropertyDocumentController::class, 'destroy'])->name('documents.destroy');
-
-    // Project Updates
-    Route::get('project-updates', [AdminProjectUpdateController::class, 'index'])->name('project-updates.index');
-    Route::get('properties/{property}/project-updates/create', [AdminProjectUpdateController::class, 'create'])->name('project-updates.create');
-    Route::post('properties/{property}/project-updates', [AdminProjectUpdateController::class, 'store'])->name('project-updates.store');
-    Route::get('properties/{property}/project-updates/{projectUpdate}', [AdminProjectUpdateController::class, 'show'])->name('project-updates.show');
-    Route::delete('project-update-images/{image}', [AdminProjectUpdateController::class, 'destroyImage'])->name('project-update-images.destroy');
-    Route::delete('project-update-documents/{document}', [AdminProjectUpdateController::class, 'destroyDocument'])->name('project-update-documents.destroy');
-
-    // Milestones
-    Route::get('properties/{property}/milestones', [AdminProjectMilestoneController::class, 'index'])->name('milestones.index');
-    Route::post('properties/{property}/milestones', [AdminProjectMilestoneController::class, 'store'])->name('milestones.store');
-    Route::patch('properties/{property}/milestones/{milestone}', [AdminProjectMilestoneController::class, 'update'])->name('milestones.update');
-    Route::delete('properties/{property}/milestones/{milestone}', [AdminProjectMilestoneController::class, 'destroy'])->name('milestones.destroy');
-    Route::post('properties/{property}/milestones/reorder', [AdminProjectMilestoneController::class, 'reorder'])->name('milestones.reorder');
-
-    // Ownerships
-    Route::get('ownerships/create', [AdminOwnershipController::class, 'create'])->name('ownerships.create');
-    Route::post('ownerships', [AdminOwnershipController::class, 'store'])->name('ownerships.store');
-    Route::get('ownerships/{ownership}/edit', [AdminOwnershipController::class, 'edit'])->name('ownerships.edit');
-    Route::patch('ownerships/{ownership}', [AdminOwnershipController::class, 'update'])->name('ownerships.update');
-    Route::delete('ownerships/{ownership}', [AdminOwnershipController::class, 'destroy'])->name('ownerships.destroy');
-
-    // Payments
+    // Payments (view + flag)
     Route::get('payments', [AdminPaymentCtrl::class, 'index'])->name('payments.index');
     Route::get('payments/{payment}', [AdminPaymentCtrl::class, 'show'])->name('payments.show');
     Route::patch('payments/{payment}/flag', [AdminPaymentCtrl::class, 'flag'])->name('payments.flag');
@@ -226,13 +166,100 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('appointments/{appointment}', [AdminAppointmentController::class, 'show'])->name('appointments.show');
     Route::patch('appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('appointments.update');
 
-    // Property Value Tracker
-    Route::get('property-values', [AdminPropertyValueController::class, 'index'])->name('property-values.index');
-    Route::post('property-values', [AdminPropertyValueController::class, 'store'])->name('property-values.store');
-    Route::delete('property-values/{propertyValueHistory}', [AdminPropertyValueController::class, 'destroy'])->name('property-values.destroy');
+    // Interest Registrations
+    Route::get('interests', [AdminInterestController::class, 'index'])->name('interests.index');
+    Route::post('interests/{interest}/forward', [AdminInterestController::class, 'forward'])->name('interests.forward');
 
-    // Market Insights
-    Route::resource('market-insights', AdminMarketInsightController::class)->except(['show']);
+    // Project Updates (index + show + comment — all admin users)
+    Route::get('project-updates', [AdminProjectUpdateController::class, 'index'])->name('project-updates.index');
+    Route::get('properties/{property}/project-updates/{projectUpdate}', [AdminProjectUpdateController::class, 'show'])->name('project-updates.show');
+    Route::post('properties/{property}/project-updates/{projectUpdate}/comments', [AdminProjectUpdateController::class, 'storeComment'])->name('project-updates.comments.store');
+    Route::delete('project-update-images/{image}', [AdminProjectUpdateController::class, 'destroyImage'])->name('project-update-images.destroy');
+    Route::delete('project-update-documents/{document}', [AdminProjectUpdateController::class, 'destroyDocument'])->name('project-update-documents.destroy');
+
+    // ── Super admin only ───────────────────────────────────────────────────
+    Route::middleware('superadmin')->group(function () {
+
+        // Staff & role management
+        Route::get('staff', [AdminStaffController::class, 'index'])->name('staff.index');
+        Route::get('staff/create', [AdminStaffController::class, 'create'])->name('staff.create');
+        Route::post('staff', [AdminStaffController::class, 'store'])->name('staff.store');
+        Route::get('staff/{staff}/edit', [AdminStaffController::class, 'edit'])->name('staff.edit');
+        Route::patch('staff/{staff}', [AdminStaffController::class, 'update'])->name('staff.update');
+        Route::post('staff/{staff}/reset-password', [AdminStaffController::class, 'resetPassword'])->name('staff.reset-password');
+        Route::delete('staff/{staff}', [AdminStaffController::class, 'destroy'])->name('staff.destroy');
+
+        Route::get('roles', [AdminRoleController::class, 'index'])->name('roles.index');
+        Route::get('roles/create', [AdminRoleController::class, 'create'])->name('roles.create');
+        Route::post('roles', [AdminRoleController::class, 'store'])->name('roles.store');
+        Route::get('roles/{role}/edit', [AdminRoleController::class, 'edit'])->name('roles.edit');
+        Route::patch('roles/{role}', [AdminRoleController::class, 'update'])->name('roles.update');
+        Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->name('roles.destroy');
+
+        // Buyers + Sales Rep assignment
+        Route::resource('buyers', AdminBuyerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
+        Route::post('buyers/{buyer}/sales-rep', [AdminSalesRepController::class, 'assignToBuyer'])->name('buyers.assign-rep');
+        Route::post('buyers/{buyer}/reset-password', [AdminBuyerController::class, 'resetPassword'])->name('buyers.reset-password');
+
+        // Sales Reps
+        Route::get('sales-reps', [AdminSalesRepController::class, 'index'])->name('sales-reps.index');
+        Route::post('sales-reps', [AdminSalesRepController::class, 'store'])->name('sales-reps.store');
+        Route::patch('sales-reps/{salesRep}', [AdminSalesRepController::class, 'update'])->name('sales-reps.update');
+        Route::delete('sales-reps/{salesRep}', [AdminSalesRepController::class, 'destroy'])->name('sales-reps.destroy');
+
+        // Properties + unit management
+        Route::resource('properties', AdminPropertyController::class);
+        Route::post('properties/{property}/units', [AdminPropertyController::class, 'storeUnit'])->name('properties.units.store');
+        Route::patch('properties/{property}/units/{unit}', [AdminPropertyController::class, 'updateUnit'])->name('properties.units.update');
+        Route::delete('properties/{property}/units/{unit}', [AdminPropertyController::class, 'destroyUnit'])->name('properties.units.destroy');
+
+        // Property Images
+        Route::post('properties/{property}/images', [AdminPropertyImageController::class, 'store'])->name('property-images.store');
+        Route::post('properties/{property}/images/{image}/cover', [AdminPropertyImageController::class, 'setCover'])->name('property-images.cover');
+        Route::post('properties/{property}/images/reorder', [AdminPropertyImageController::class, 'reorder'])->name('property-images.reorder');
+        Route::delete('properties/{property}/images/{image}', [AdminPropertyImageController::class, 'destroy'])->name('property-images.destroy');
+
+        // Unit Type Images
+        Route::post('properties/{property}/units/{unit}/images', [AdminUnitImageController::class, 'store'])->name('unit-images.store');
+        Route::delete('properties/{property}/units/{unit}/images/{image}', [AdminUnitImageController::class, 'destroy'])->name('unit-images.destroy');
+
+        // Property Documents — admin uploads
+        Route::post('properties/{property}/documents', [AdminPropertyDocumentController::class, 'store'])->name('property-documents.store');
+
+        // Property Documents (buyer-uploaded, admin reviews)
+        Route::get('documents', [AdminPropertyDocumentController::class, 'index'])->name('documents.index');
+        Route::patch('documents/{propertyDocument}/verify', [AdminPropertyDocumentController::class, 'verify'])->name('documents.verify');
+        Route::patch('documents/{propertyDocument}/flag', [AdminPropertyDocumentController::class, 'flag'])->name('documents.flag');
+        Route::patch('documents/{propertyDocument}/unflag', [AdminPropertyDocumentController::class, 'unflag'])->name('documents.unflag');
+        Route::get('documents/{propertyDocument}/download', [AdminPropertyDocumentController::class, 'adminDownload'])->name('documents.download');
+        Route::delete('documents/{propertyDocument}', [AdminPropertyDocumentController::class, 'destroy'])->name('documents.destroy');
+
+        // Project Updates — create & post (super admin only)
+        Route::get('properties/{property}/project-updates/create', [AdminProjectUpdateController::class, 'create'])->name('project-updates.create');
+        Route::post('properties/{property}/project-updates', [AdminProjectUpdateController::class, 'store'])->name('project-updates.store');
+
+        // Milestones
+        Route::get('properties/{property}/milestones', [AdminProjectMilestoneController::class, 'index'])->name('milestones.index');
+        Route::post('properties/{property}/milestones', [AdminProjectMilestoneController::class, 'store'])->name('milestones.store');
+        Route::patch('properties/{property}/milestones/{milestone}', [AdminProjectMilestoneController::class, 'update'])->name('milestones.update');
+        Route::delete('properties/{property}/milestones/{milestone}', [AdminProjectMilestoneController::class, 'destroy'])->name('milestones.destroy');
+        Route::post('properties/{property}/milestones/reorder', [AdminProjectMilestoneController::class, 'reorder'])->name('milestones.reorder');
+
+        // Ownerships
+        Route::get('ownerships/create', [AdminOwnershipController::class, 'create'])->name('ownerships.create');
+        Route::post('ownerships', [AdminOwnershipController::class, 'store'])->name('ownerships.store');
+        Route::get('ownerships/{ownership}/edit', [AdminOwnershipController::class, 'edit'])->name('ownerships.edit');
+        Route::patch('ownerships/{ownership}', [AdminOwnershipController::class, 'update'])->name('ownerships.update');
+        Route::delete('ownerships/{ownership}', [AdminOwnershipController::class, 'destroy'])->name('ownerships.destroy');
+
+        // Property Value Tracker
+        Route::get('property-values', [AdminPropertyValueController::class, 'index'])->name('property-values.index');
+        Route::post('property-values', [AdminPropertyValueController::class, 'store'])->name('property-values.store');
+        Route::delete('property-values/{propertyValueHistory}', [AdminPropertyValueController::class, 'destroy'])->name('property-values.destroy');
+
+        // Market Insights
+        Route::resource('market-insights', AdminMarketInsightController::class)->except(['show']);
+    });
 });
 
 require __DIR__ . '/auth.php';

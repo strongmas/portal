@@ -8,6 +8,7 @@ use App\Models\ProjectUpdateDocument;
 use App\Models\ProjectUpdateImage;
 use App\Models\ProjectUpdate;
 use App\Models\Property;
+use App\Models\UpdateComment;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -89,6 +90,19 @@ class AdminProjectUpdateController extends Controller
         $projectUpdate->load(['images', 'documents', 'comments.user', 'poster']);
         $milestones = $property->milestones()->orderBy('sort_order')->get();
         return view('admin.project-updates.show', compact('property', 'projectUpdate', 'milestones'));
+    }
+
+    public function storeComment(Request $request, Property $property, ProjectUpdate $projectUpdate)
+    {
+        $validated = $request->validate(['body' => ['required', 'string', 'min:2', 'max:2000']]);
+
+        UpdateComment::create([
+            'project_update_id' => $projectUpdate->id,
+            'user_id'           => auth()->id(),
+            'body'              => $validated['body'],
+        ]);
+
+        return back()->with('success', 'Reply posted.');
     }
 
     public function destroyImage(ProjectUpdateImage $image)

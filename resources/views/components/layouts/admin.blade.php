@@ -4,6 +4,7 @@
     use App\Models\SupportMessage;
     use App\Models\SupportTicket;
     use App\Models\User;
+    $authUser         = auth()->user();
     $kycPending       = User::where('is_admin', false)->whereNull('kyc_verified_at')->count();
     $ticketsPending   = SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
     $chatPending      = SupportMessage::whereRaw('id IN (SELECT MAX(id) FROM support_messages GROUP BY user_id)')
@@ -59,21 +60,13 @@
                 Dashboard
             </a>
 
+            {{-- Super-admin-only items --}}
+            @if($authUser->isSuperAdmin())
             <a href="{{ route('admin.buyers.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/buyers') ? 'active' : '' }}"
                @click="navOpen = false">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                 Buyers
-            </a>
-
-            <a href="{{ route('admin.interests.index') }}"
-               class="nav-item {{ str_starts_with($path,'/admin/interests') ? 'active' : '' }}"
-               @click="navOpen = false">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                Interests
-                @if($interestsPending)
-                    <span class="nav-badge">{{ $interestsPending }}</span>
-                @endif
             </a>
 
             <a href="{{ route('admin.properties.index') }}"
@@ -89,7 +82,9 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                 Link Property
             </a>
+            @endif
 
+            {{-- Payments (all admins) --}}
             <a href="{{ route('admin.payments.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/payments') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -97,6 +92,7 @@
                 Payments
             </a>
 
+            {{-- Tickets (all admins) --}}
             <a href="{{ route('admin.tickets.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/tickets') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -107,6 +103,7 @@
                 @endif
             </a>
 
+            {{-- Chat (all admins) --}}
             <a href="{{ route('admin.support.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/support') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -117,6 +114,7 @@
                 @endif
             </a>
 
+            {{-- KYC (all admins) --}}
             <a href="{{ route('admin.kyc.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/kyc') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -127,6 +125,7 @@
                 @endif
             </a>
 
+            {{-- Appointments (all admins) --}}
             <a href="{{ route('admin.appointments.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/appointments') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -134,6 +133,18 @@
                 Appointments
             </a>
 
+            {{-- Interests (all admins) --}}
+            <a href="{{ route('admin.interests.index') }}"
+               class="nav-item {{ str_starts_with($path,'/admin/interests') ? 'active' : '' }}"
+               @click="navOpen = false">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                Interests
+                @if($interestsPending)
+                    <span class="nav-badge">{{ $interestsPending }}</span>
+                @endif
+            </a>
+
+            {{-- Project Updates (all admins) --}}
             <a href="{{ route('admin.project-updates.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/project-updates') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -141,6 +152,8 @@
                 Project Updates
             </a>
 
+            {{-- Super-admin-only: Property Values, Market Insights, Sales Reps --}}
+            @if($authUser->isSuperAdmin())
             <a href="{{ route('admin.property-values.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/property-values') ? 'active' : '' }}"
                @click="navOpen = false">
@@ -161,6 +174,22 @@
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Sales Reps
             </a>
+
+            {{-- Staff & Roles --}}
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-faint);padding:12px 12px 4px;">Team</div>
+            <a href="{{ route('admin.staff.index') }}"
+               class="nav-item {{ str_starts_with($path,'/admin/staff') ? 'active' : '' }}"
+               @click="navOpen = false">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                Staff
+            </a>
+            <a href="{{ route('admin.roles.index') }}"
+               class="nav-item {{ str_starts_with($path,'/admin/roles') ? 'active' : '' }}"
+               @click="navOpen = false">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Roles
+            </a>
+            @endif
 
         </nav>
 

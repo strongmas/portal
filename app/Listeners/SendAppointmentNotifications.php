@@ -16,8 +16,8 @@ class SendAppointmentNotifications
     {
         $appointment = $event->appointment->load(['user', 'property', 'salesRep']);
 
-        // Notify all admins via email + in-app
-        $admins = User::where('is_admin', true)->get();
+        // Notify admins with 'appointments' permission via email + in-app
+        $admins = User::withAdminPermission('appointments')->get();
         foreach ($admins as $admin) {
             Mail::to($admin->email)->send(new AppointmentBookedAdminMail($appointment));
             $admin->notify(new NewAppointmentNotification($appointment));

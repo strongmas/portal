@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\StaffAlertMail;
 use App\Models\Property;
 use App\Models\ProjectUpdate;
 use App\Models\UpdateComment;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class ProjectUpdateController extends Controller
@@ -78,6 +81,17 @@ class ProjectUpdateController extends Controller
             'user_id'           => $user->id,
             'body'              => $validated['body'],
         ]);
+
+        // Notify staff with 'project_update_comments' permission
+        User::withAdminPermission('project_update_comments')->each(function ($staff) use ($user, $projectUpdate) {
+            Mail::to($staff->email)->send(new StaffAlertMail(
+                alertSubject: "New comment on project update: {$projectUpdate->title}",
+                heading: "New buyer comment on project update",
+                body: "{$user->name} commented on \"{$projectUpdate->title}\":\n\n{$validated['body']}",
+                actionUrl: route('admin.project-updates.show', [$projectUpdate->property, $projectUpdate]),
+                actionLabel: 'View Update',
+            ));
+        });
 
         return back()->with('success', 'Comment posted.');
     }

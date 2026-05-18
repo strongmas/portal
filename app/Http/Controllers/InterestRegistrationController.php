@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\StaffAlertMail;
 use App\Models\InterestRegistration;
 use App\Models\Property;
 use App\Models\PropertyUnit;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class InterestRegistrationController extends Controller
 {
@@ -23,11 +26,27 @@ class InterestRegistrationController extends Controller
                 ->firstOrFail();
         }
 
-        InterestRegistration::firstOrCreate([
-            'user_id'          => $request->user()->id,
-            'property_id'      => $property->id,
-            'property_unit_id' => $unitId,
-        ]);
+        [$interest, $created] = [
+            InterestRegistration::firstOrCreate([
+                'user_id'          => $request->user()->id,
+                'property_id'      => $property->id,
+                'property_unit_id' => $unitId,
+            ]),
+            false,
+        ];
+
+        if ($created || !isset($interest->wasRecentlyCreated) || $interest->wasRecentlyCreated) {
+            $buyer = $request->user();
+            User::withAdminPermission('interests')->each(function ($staff) use ($buyer, $property) {
+                Mail::to($staff->email)->send(new StaffAlertMail(
+                    alertSubject: "New interest registration from {$buyer->name}",
+                    heading: "New interest registered",
+                    body: "{$buyer->name} has registered interest in {$property->development_name}.",
+                    actionUrl: route('admin.interests.index'),
+                    actionLabel: 'View Interests',
+                ));
+            });
+        }
 
         return back()->with('success', 'Your interest has been registered. Our team will be in touch.');
     }
