@@ -52,6 +52,11 @@ class PaymentController extends Controller
             return back()->withErrors(['ownership_id' => 'This property is fully paid — no further payments are needed.']);
         }
 
+        // Prevent duplicate submissions (same reference for same property)
+        if (!empty($validated['reference']) && Payment::where('ownership_id', $ownership->id)->where('reference', $validated['reference'])->exists()) {
+            return back()->withInput()->withErrors(['reference' => 'A payment with this reference has already been logged for this property.']);
+        }
+
         $amountKobo = kobo($validated['amount']);
         if ($amountKobo > $ownership->outstanding_kobo) {
             return back()

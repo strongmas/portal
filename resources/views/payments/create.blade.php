@@ -57,7 +57,7 @@
         {{-- ── Left: Form ─────────────────────────────────────────────────── --}}
         <div style="display:flex;flex-direction:column;gap:16px;">
             <form method="POST" action="{{ route('payments.store') }}" enctype="multipart/form-data" id="payment-form"
-                  @submit="submitting = true">
+                  @submit="if (submitting) { $event.preventDefault(); return; } submitting = true;">
                 @csrf
 
                 {{-- Property --}}
