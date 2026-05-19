@@ -172,6 +172,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Project Updates (index + show + comment — all admin users)
     Route::get('project-updates', [AdminProjectUpdateController::class, 'index'])->name('project-updates.index');
+    // create/store must be declared before the {projectUpdate} wildcard to avoid "create" being captured as an ID
+    Route::get('properties/{property}/project-updates/create', [AdminProjectUpdateController::class, 'create'])->name('project-updates.create')->middleware('superadmin');
+    Route::post('properties/{property}/project-updates', [AdminProjectUpdateController::class, 'store'])->name('project-updates.store')->middleware('superadmin');
     Route::get('properties/{property}/project-updates/{projectUpdate}', [AdminProjectUpdateController::class, 'show'])->name('project-updates.show');
     Route::post('properties/{property}/project-updates/{projectUpdate}/comments', [AdminProjectUpdateController::class, 'storeComment'])->name('project-updates.comments.store');
     Route::delete('project-update-images/{image}', [AdminProjectUpdateController::class, 'destroyImage'])->name('project-update-images.destroy');
@@ -233,10 +236,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::patch('documents/{propertyDocument}/unflag', [AdminPropertyDocumentController::class, 'unflag'])->name('documents.unflag');
         Route::get('documents/{propertyDocument}/download', [AdminPropertyDocumentController::class, 'adminDownload'])->name('documents.download');
         Route::delete('documents/{propertyDocument}', [AdminPropertyDocumentController::class, 'destroy'])->name('documents.destroy');
-
-        // Project Updates — create & post (super admin only)
-        Route::get('properties/{property}/project-updates/create', [AdminProjectUpdateController::class, 'create'])->name('project-updates.create');
-        Route::post('properties/{property}/project-updates', [AdminProjectUpdateController::class, 'store'])->name('project-updates.store');
 
         // Milestones
         Route::get('properties/{property}/milestones', [AdminProjectMilestoneController::class, 'index'])->name('milestones.index');
