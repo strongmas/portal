@@ -83,7 +83,7 @@ class ProjectUpdateController extends Controller
         ]);
 
         // Notify staff with 'project_update_comments' permission
-        User::withAdminPermission('project_update_comments')->each(function ($staff) use ($user, $projectUpdate) {
+        User::withAdminPermission('project_update_comments')->each(function ($staff) use ($user, $projectUpdate, $validated) {
             Mail::to($staff->email)->send(new StaffAlertMail(
                 alertSubject: "New comment on project update: {$projectUpdate->title}",
                 heading: "New buyer comment on project update",
