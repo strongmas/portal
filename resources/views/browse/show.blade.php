@@ -93,7 +93,6 @@
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 @foreach($roomTypes as $key => $label)
                 @if($availableRooms->contains($key))
-                @php $count = $unit->images->where('room_type', $key)->count(); @endphp
                 <button type="button"
                         @click="activeRoom = '{{ $key }}'"
                         :style="activeRoom === '{{ $key }}'
@@ -107,11 +106,6 @@
                           style="transition:color .2s;line-height:1;">{!! $roomIcons[$key] !!}</span>
                     <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
                                  line-height:1.2;text-align:center;white-space:nowrap;">{{ $label }}</span>
-                    <span :style="activeRoom === '{{ $key }}' ? 'background:rgba(10,20,40,.18);color:#0a1428;' : 'background:var(--bg-raised);color:var(--fg-faint);'"
-                          style="font-size:9px;font-weight:700;font-family:\'Geist Mono\',monospace;
-                                 padding:1px 6px;border-radius:99px;transition:all .2s;">
-                        {{ $count }}
-                    </span>
                 </button>
                 @endif
                 @endforeach
