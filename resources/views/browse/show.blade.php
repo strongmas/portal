@@ -39,61 +39,60 @@
          x-data="{ activeRoom: '{{ $unit->images->pluck('room_type')->unique()->first() ?? 'exterior' }}' }">
 
         {{-- Unit header --}}
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line);">
-            <div>
-                <h2 style="font-size:17px;font-weight:600;color:var(--fg);">{{ $unit->label }}</h2>
-                <div style="display:flex;align-items:center;gap:12px;margin-top:4px;">
-                    <span style="font-size:13px;font-family:'Geist Mono',monospace;color:var(--tan);font-weight:600;">{{ naira($unit->list_price_kobo) }}</span>
-                    @if($isAvailable)
-                    <span class="chip chip-ok" style="font-size:11px;padding:2px 8px;">{{ $unit->available }} available</span>
-                    @else
-                    <span class="chip chip-danger" style="font-size:11px;padding:2px 8px;">Sold out</span>
-                    @endif
+        <div style="padding:18px 20px;border-bottom:1px solid var(--line);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div style="min-width:0;">
+                    <h2 style="font-size:17px;font-weight:600;color:var(--fg);margin:0 0 6px;">{{ $unit->label }}</h2>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <span style="font-size:14px;font-family:'Geist Mono',monospace;color:var(--tan);font-weight:600;">{{ naira($unit->list_price_kobo) }}</span>
+                        @if($isAvailable)
+                        <span class="chip chip-ok" style="font-size:11px;padding:2px 8px;">{{ $unit->available }} available</span>
+                        @else
+                        <span class="chip chip-danger" style="font-size:11px;padding:2px 8px;">Sold out</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-
-            {{-- Register interest button --}}
-            @if($isAvailable)
-                @if($existingInterest)
-                <div style="text-align:right;">
-                    <div style="font-size:12px;color:var(--ok,#16a34a);margin-bottom:4px;">✓ Interest registered</div>
-                    <form method="POST" action="{{ route('interests.destroy', $existingInterest->id) }}">
-                        @csrf @method('DELETE')
-                        <button type="submit" style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;background:none;border:none;cursor:pointer;">
-                            Remove interest
+                {{-- Register interest button --}}
+                @if($isAvailable)
+                    @if($existingInterest)
+                    <div style="flex-shrink:0;text-align:right;">
+                        <div style="font-size:12px;color:var(--ok,#16a34a);margin-bottom:4px;">✓ Interest registered</div>
+                        <form method="POST" action="{{ route('interests.destroy', $existingInterest->id) }}">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;background:none;border:none;cursor:pointer;">
+                                Remove interest
+                            </button>
+                        </form>
+                    </div>
+                    @else
+                    <form method="POST" action="{{ route('interests.store', $property) }}" style="flex-shrink:0;">
+                        @csrf
+                        <input type="hidden" name="property_unit_id" value="{{ $unit->id }}">
+                        <button type="submit" class="btn-primary" style="font-size:13px;white-space:nowrap;">
+                            Register Interest
                         </button>
                     </form>
-                </div>
-                @else
-                <form method="POST" action="{{ route('interests.store', $property) }}">
-                    @csrf
-                    <input type="hidden" name="property_unit_id" value="{{ $unit->id }}">
-                    <button type="submit" class="btn-primary" style="font-size:13px;">
-                        Register Interest
-                    </button>
-                </form>
+                    @endif
                 @endif
-            @endif
+            </div>
         </div>
 
         @if($hasAnyImages)
         {{-- Room type tabs --}}
         @php $availableRooms = $unit->images->pluck('room_type')->unique(); @endphp
-        <div style="padding:18px 24px 0;border-bottom:1px solid var(--line);background:var(--bg-raised);">
-            <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:0;">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--line);background:var(--bg-raised);">
+            <div style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+                        scrollbar-width:none;padding-bottom:2px;">
                 @foreach($roomTypes as $key => $label)
                 @if($availableRooms->contains($key))
                 <button type="button"
                         @click="activeRoom = '{{ $key }}'"
                         :style="activeRoom === '{{ $key }}'
-                            ? 'background:var(--tan);color:#0a1428;border-color:var(--tan);font-weight:700;letter-spacing:.04em;'
-                            : 'background:transparent;color:var(--fg-dim);border-color:transparent;font-weight:500;letter-spacing:.04em;'"
-                        style="padding:8px 20px;font-size:11px;text-transform:uppercase;border:1px solid transparent;
-                               border-bottom:none;border-radius:10px 10px 0 0;cursor:pointer;
-                               white-space:nowrap;flex-shrink:0;transition:all .18s ease;margin-bottom:-1px;
-                               position:relative;z-index:1;"
-                        onmouseover="if(this.style.background==='transparent'||this.style.background===''){this.style.color='var(--fg)';this.style.background='var(--bg-hover)'}"
-                        onmouseout="if(this.getAttribute('x-bind:style').includes('transparent')){this.style.color='';this.style.background=''}">
+                            ? 'background:var(--tan);color:#0a1428;border-color:var(--tan);font-weight:700;'
+                            : 'background:transparent;color:var(--fg-dim);border-color:rgba(255,255,255,0.1);font-weight:500;'"
+                        style="padding:7px 18px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+                               border:1px solid;border-radius:99px;cursor:pointer;
+                               white-space:nowrap;flex-shrink:0;transition:all .18s ease;">
                     {{ $label }}
                 </button>
                 @endif
@@ -105,7 +104,7 @@
         @foreach($roomTypes as $key => $label)
         @php $roomImgs = $unit->images->where('room_type', $key)->sortBy('sort_order'); @endphp
         @if($roomImgs->isNotEmpty())
-        <div x-show="activeRoom === '{{ $key }}'" x-cloak style="padding:28px 24px;">
+        <div x-show="activeRoom === '{{ $key }}'" x-cloak style="padding:20px;">
             {{-- Section label --}}
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
                 <span style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
@@ -123,7 +122,7 @@
                      onmouseover="this.querySelector('img').style.transform='scale(1.03)'"
                      onmouseout="this.querySelector('img').style.transform='scale(1)'">
                     <img src="{{ $heroImg->url }}" alt="{{ $label }}"
-                         style="width:100%;height:340px;object-fit:cover;display:block;transition:transform .5s ease;">
+                         style="width:100%;height:clamp(200px,45vw,340px);object-fit:cover;display:block;transition:transform .5s ease;">
                     <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(5,14,30,.45) 0%,transparent 55%);
                                 pointer-events:none;transition:opacity .3s;"
                          class="img-overlay"></div>
@@ -140,7 +139,7 @@
                             border:1px solid rgba(239,197,157,.1);box-shadow:0 2px 12px rgba(0,0,0,.25);"
                      onclick="openLightbox('{{ addslashes($img->url) }}')">
                     <img src="{{ $img->url }}" alt="{{ $label }}"
-                         style="width:100%;height:200px;object-fit:cover;display:block;transition:transform .5s ease;"
+                         style="width:100%;height:clamp(130px,28vw,200px);object-fit:cover;display:block;transition:transform .5s ease;"
                          onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
                     <div style="position:absolute;inset:0;background:rgba(5,14,30,.15);pointer-events:none;transition:opacity .3s;"
                          onmouseover="this.style.opacity=0" onmouseout="this.style.opacity=1"></div>
