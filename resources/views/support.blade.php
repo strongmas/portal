@@ -306,6 +306,11 @@
                          links: [{ label: 'My Documents', url: '{{ route('documents.index') }}' }, { label: 'My Properties', url: '{{ route('properties.index') }}' }]
                      },
                      {
+                         q: 'Can I view documents for a property I haven\'t bought yet?',
+                         a: 'Yes. On any property\'s detail page in Browse, scroll down to the Property Documents section to view and download official documents shared by Strongmas for that development - such as brochures, approvals, and survey plans. You do not need to own or register interest in the property first.',
+                         links: [{ label: 'Browse Properties', url: '{{ route('browse.index') }}' }]
+                     },
+                     {
                          q: 'What does the Analytics page show?',
                          a: 'The Analytics page tracks the investment value of each property you own. It shows your original purchase price, the current estimated market value (updated by Strongmas), your total gain or loss in naira and percentage, and your payment progress. Market insights posted by the team - such as price movements and area demand trends - also appear here.',
                          links: [{ label: 'My Analytics', url: '{{ route('analytics.index') }}' }]

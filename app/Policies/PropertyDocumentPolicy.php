@@ -33,11 +33,10 @@ class PropertyDocumentPolicy
 
         if ($memberAccess) return true;
 
-        // Allow interested buyers to download property-level admin documents
+        // Property-level admin docs are public to any authenticated buyer;
+        // the admin controls exposure via is_buyer_visible (already checked above).
         if (is_null($document->ownership_id)) {
-            return $user->interestRegistrations()
-                ->where('property_id', $document->property_id)
-                ->exists();
+            return true;
         }
 
         return false;
