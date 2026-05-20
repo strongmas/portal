@@ -260,23 +260,148 @@
         @endif
 
         {{-- FAQ --}}
-        <div class="card" style="padding:18px;">
+        <div class="card" style="padding:18px;"
+             x-data="{
+                 open: false,
+                 idx: 0,
+                 faqs: [
+                     {
+                         q: 'When does my balance update?',
+                         a: 'Your balance updates automatically once our team verifies your payment submission. Verification typically takes 24–48 hours. You will see the change reflected on your Balance page as soon as it is confirmed.'
+                     },
+                     {
+                         q: 'Can I edit a logged payment?',
+                         a: 'Logged payments cannot be edited directly. If you submitted incorrect details, you can delete the payment from your History page and re-submit with the correct information. Reach out to support if you need help.'
+                     },
+                     {
+                         q: 'Can I change instalment dates?',
+                         a: 'Instalment due dates are fixed when your payment plan is set up and cannot be changed from the portal. If you need an adjustment, please raise a complaint or contact our support team — we will review your request and respond within 48 hours.'
+                     },
+                     {
+                         q: 'What if I miss a payment?',
+                         a: 'A missed payment will mark your instalment as overdue. We strongly recommend contacting our team as soon as possible to discuss your options. Continued missed payments may affect your agreement status.'
+                     },
+                     {
+                         q: 'How do I get my receipt?',
+                         a: 'After your payment is verified, a receipt is generated automatically. You can download it from your History page by clicking on any verified payment and selecting \'Download Receipt\'.'
+                     },
+                 ]
+             }">
+
             <p style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
                       color:rgba(176,196,221,.45);margin:0 0 10px;">FAQ</p>
-            @foreach([
-                'When does my balance update?',
-                'Can I edit a logged payment?',
-                'Can I change instalment dates?',
-                'What if I miss a payment?',
-            ] as $q)
-            <div style="display:flex;align-items:center;justify-content:space-between;
-                        padding:10px 0;border-top:1px solid var(--line);
-                        font-size:13px;color:var(--fg-dim);cursor:pointer;transition:color .15s;"
-                 onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">
-                <span>{{ $q }}</span>
-                <span style="opacity:.3;font-size:16px;line-height:1;">›</span>
+
+            <template x-for="(faq, i) in faqs" :key="i">
+                <div @click="idx = i; open = true"
+                     style="display:flex;align-items:center;justify-content:space-between;gap:8px;
+                            padding:10px 0;border-top:1px solid var(--line);
+                            font-size:13px;color:var(--fg-dim);cursor:pointer;transition:color .15s;"
+                     onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">
+                    <span x-text="faq.q" style="flex:1;"></span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.35;">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </div>
+            </template>
+
+            {{-- Modal backdrop --}}
+            <div x-show="open" x-cloak
+                 x-transition:enter="transition-opacity ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click.self="open = false"
+                 @keydown.escape.window="open = false"
+                 style="position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;
+                        padding:16px;background:rgba(5,14,30,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
+
+                {{-- Modal card --}}
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     @click.stop
+                     style="width:100%;max-width:500px;background:var(--bg-card);border:1px solid var(--line);
+                            border-radius:20px;padding:28px 28px 24px;position:relative;
+                            box-shadow:0 32px 80px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto;">
+
+                    {{-- Close --}}
+                    <button @click="open = false"
+                            style="position:absolute;top:16px;right:16px;width:32px;height:32px;
+                                   border:1px solid var(--line);border-radius:9px;background:var(--bg-raised);
+                                   display:grid;place-items:center;cursor:pointer;color:var(--fg-mute);
+                                   transition:all .15s;flex-shrink:0;"
+                            onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--fg)'"
+                            onmouseout="this.style.background='var(--bg-raised)';this.style.color='var(--fg-mute)'">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+
+                    {{-- Tag --}}
+                    <div style="display:inline-flex;align-items:center;gap:6px;padding:3px 10px;
+                                border-radius:99px;background:rgba(239,197,157,.1);border:1px solid rgba(239,197,157,.2);
+                                margin-bottom:16px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--tan)" stroke-width="2.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tan);">FAQ</span>
+                    </div>
+
+                    {{-- Question --}}
+                    <h3 style="font-size:17px;font-weight:700;color:var(--fg);margin:0 0 14px;
+                               letter-spacing:-.01em;line-height:1.4;padding-right:28px;"
+                        x-text="faqs[idx].q"></h3>
+
+                    <div style="width:28px;height:2px;background:var(--tan);border-radius:1px;margin-bottom:16px;opacity:.6;"></div>
+
+                    {{-- Answer --}}
+                    <p style="font-size:14px;color:var(--fg-dim);line-height:1.75;margin:0;"
+                       x-text="faqs[idx].a"></p>
+
+                    {{-- Navigation --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;
+                                margin-top:24px;padding-top:16px;border-top:1px solid var(--line);gap:12px;">
+                        <button @click="idx = (idx - 1 + faqs.length) % faqs.length"
+                                style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+                                       color:var(--fg-dim);background:var(--bg-raised);border:1px solid var(--line);
+                                       border-radius:8px;padding:7px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;"
+                                onmouseover="this.style.borderColor='var(--line-strong)';this.style.color='var(--fg)'"
+                                onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--fg-dim)'">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                            Prev
+                        </button>
+                        <span style="font-size:11px;color:var(--fg-faint);font-family:'Geist Mono',monospace;flex-shrink:0;"
+                              x-text="(idx + 1) + ' / ' + faqs.length"></span>
+                        <button @click="idx = (idx + 1) % faqs.length"
+                                style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+                                       color:var(--fg-dim);background:var(--bg-raised);border:1px solid var(--line);
+                                       border-radius:8px;padding:7px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;"
+                                onmouseover="this.style.borderColor='var(--line-strong)';this.style.color='var(--fg)'"
+                                onmouseout="this.style.borderColor='var(--line)';this.style.color='var(--fg-dim)'">
+                            Next
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+
+                    {{-- Dots --}}
+                    <div style="display:flex;justify-content:center;gap:6px;margin-top:16px;">
+                        <template x-for="(_, i) in faqs" :key="i">
+                            <button @click="idx = i"
+                                    :style="'width:6px;height:6px;border-radius:50%;border:none;cursor:pointer;transition:all .2s;' +
+                                            (i === idx ? 'background:var(--tan);transform:scale(1.3);' : 'background:var(--line-strong);')" ></button>
+                        </template>
+                    </div>
+                </div>
             </div>
-            @endforeach
         </div>
 
     </div>{{-- end sidebar --}}
