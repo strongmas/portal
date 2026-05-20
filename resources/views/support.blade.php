@@ -266,24 +266,49 @@
                  idx: 0,
                  faqs: [
                      {
-                         q: 'When does my balance update?',
-                         a: 'Your balance updates automatically once our team verifies your payment submission. Verification typically takes 24–48 hours. You will see the change reflected on your Balance page as soon as it is confirmed.'
+                         q: 'How do I log a payment?',
+                         a: 'Go to Log Payment and fill in the amount, date paid, payment method, bank name, and transaction reference — then attach your proof of payment (bank debit alert, teller, or transfer receipt) as a PDF, JPG, or PNG (max 5 MB). You cannot submit without attaching a proof file. Our team reviews every submission and verifies it within 24–48 business hours.',
+                         links: [{ label: 'Log a Payment', url: '{{ route('payments.create') }}' }]
                      },
                      {
-                         q: 'Can I edit a logged payment?',
-                         a: 'Logged payments cannot be edited directly. If you submitted incorrect details, you can delete the payment from your History page and re-submit with the correct information. Reach out to support if you need help.'
+                         q: 'How long does my balance take to update?',
+                         a: 'After you submit a payment, our team manually verifies the details and your proof of payment. This typically takes 24–48 business hours. Once verified, your outstanding balance and instalment schedule update automatically. Until then the payment will show as pending in your history.',
+                         links: [{ label: 'View Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
-                         q: 'Can I change instalment dates?',
-                         a: 'Instalment due dates are fixed when your payment plan is set up and cannot be changed from the portal. If you need an adjustment, please raise a complaint or contact our support team — we will review your request and respond within 48 hours.'
+                         q: 'My payment was flagged — what do I do?',
+                         a: 'If our team finds incorrect details (wrong amount, wrong date, unclear proof), they will flag the payment and add a reason. You will see a red Flagged banner on that entry in your payment history. Delete the flagged payment and re-submit it with the correct amount, date, transaction reference, and a clear proof of payment.',
+                         links: [{ label: 'Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
-                         q: 'What if I miss a payment?',
-                         a: 'A missed payment will mark your instalment as overdue. We strongly recommend contacting our team as soon as possible to discuss your options. Continued missed payments may affect your agreement status.'
+                         q: 'How do I download my payment receipt?',
+                         a: 'Receipts are generated automatically once a payment is verified by our team. Open your Payment History, click on any verified payment entry, and a receipt summary panel will appear on the right. From there you can download it as a PDF.',
+                         links: [{ label: 'Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
-                         q: 'How do I get my receipt?',
-                         a: 'After your payment is verified, a receipt is generated automatically. You can download it from your History page by clicking on any verified payment and selecting \'Download Receipt\'.'
+                         q: 'What happens if I miss a payment?',
+                         a: 'If an instalment date passes without a logged payment, it will be marked as Overdue on your balance page. This does not automatically cancel your agreement, but we strongly recommend contacting our team as soon as possible. Persistent overdue instalments may affect your agreement status.',
+                         links: [{ label: 'My Balance', url: '{{ route('properties.index') }}' }, { label: 'Contact Support', url: '{{ route('support') }}' }]
+                     },
+                     {
+                         q: 'Where can I see construction progress?',
+                         a: 'The Project Updates page shows live construction reports for all your properties. You can see the overall progress percentage, current stage (planning, foundation, construction, finishing, completed), a milestone tracker, and every update posted by the Strongmas team — each with photos and notes.',
+                         links: [{ label: 'Project Updates', url: '{{ route('project-updates.index') }}' }]
+                     },
+                     {
+                         q: 'Can I share property access with a family member or investor?',
+                         a: 'Yes. As the primary owner, open your property\'s balance page and tap Share Access. Invite anyone by email and choose their level: Viewer (project updates and analytics only, cannot make payments), Financial (sees all payment data and can comment), or Co-Owner (full access). The invitation email expires after 7 days — the recipient must create or log in to a Strongmas account to accept.',
+                         links: [{ label: 'My Properties', url: '{{ route('properties.index') }}' }]
+                     },
+                     {
+                         q: 'How do I book a site inspection?',
+                         a: 'Use the Book Inspection page to request a visit to your property. Select the property, pick your preferred date and time, and add any notes or special requests. Our team will review your request, confirm availability, and assign a sales representative to meet you on site.',
+                         links: [{ label: 'Book Inspection', url: '{{ route('appointments.create') }}' }]
+                     },
+                     {
+                         q: 'Where are my property documents?',
+                         a: 'The Documents page holds everything in one place — documents you upload (offer letters, deeds of assignment, contracts, survey plans, etc.) and documents shared by Strongmas for your property. Strongmas-uploaded documents also appear directly on your property balance page under the Property Documents section.',
+                         links: [{ label: 'My Documents', url: '{{ route('documents.index') }}' }, { label: 'My Properties', url: '{{ route('properties.index') }}' }]
                      },
                  ]
              }">
@@ -366,6 +391,27 @@
                     {{-- Answer --}}
                     <p style="font-size:14px;color:var(--fg-dim);line-height:1.75;margin:0;"
                        x-text="faqs[idx].a"></p>
+
+                    {{-- Action links --}}
+                    <template x-if="faqs[idx].links && faqs[idx].links.length">
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;">
+                            <template x-for="(lnk, li) in faqs[idx].links" :key="li">
+                                <a :href="lnk.url"
+                                   style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;
+                                          background:rgba(239,197,157,.08);border:1px solid rgba(239,197,157,.22);
+                                          border-radius:99px;font-size:12px;font-weight:600;color:var(--tan);
+                                          text-decoration:none;transition:all .15s;"
+                                   onmouseover="this.style.background='rgba(239,197,157,.18)'"
+                                   onmouseout="this.style.background='rgba(239,197,157,.08)'">
+                                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"
+                                         viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                    <span x-text="lnk.label"></span>
+                                </a>
+                            </template>
+                        </div>
+                    </template>
 
                     {{-- Navigation --}}
                     <div style="display:flex;align-items:center;justify-content:space-between;
