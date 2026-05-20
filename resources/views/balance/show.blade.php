@@ -249,6 +249,41 @@
         </div>
     @endif
 
+    {{-- Admin documents for this property --}}
+    @if(isset($adminDocuments) && $adminDocuments->isNotEmpty())
+    <div style="margin-top:40px;">
+        <div class="eyebrow" style="margin-bottom:14px;">Property Documents</div>
+        <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:14px;overflow:hidden;">
+            @foreach($adminDocuments as $doc)
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);{{ $loop->last ? 'border-bottom:none;' : '' }}"
+                 onmouseover="this.style.background='var(--bg-raised)'" onmouseout="this.style.background='transparent'">
+                <div style="width:36px;height:36px;border-radius:9px;background:rgba(239,197,157,.1);border:1px solid rgba(239,197,157,.15);display:grid;place-items:center;flex-shrink:0;">
+                    <svg width="17" height="17" fill="none" stroke="var(--tan)" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <p style="font-size:14px;font-weight:600;color:var(--fg);margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $doc->title }}</p>
+                    <p style="font-size:12px;color:var(--fg-dim);margin:0;">{{ $doc->type_label }} · {{ $doc->created_at->format('d M Y') }}</p>
+                </div>
+                <span class="chip chip-ok" style="font-size:10px;padding:2px 8px;flex-shrink:0;">From Strongmas</span>
+                <a href="{{ route('documents.download', $doc) }}"
+                   style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--hi);text-decoration:none;white-space:nowrap;flex-shrink:0;"
+                   onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Viewer: links to what they can access --}}
     @if($isViewer)
     <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;">

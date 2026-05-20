@@ -13,9 +13,12 @@ class PropertyDocumentController extends Controller
     {
         $user = auth()->user();
 
-        $ownerships   = $user->ownerships()->with('property', 'unit')->get();
-        $ownershipIds = $ownerships->pluck('id');
-        $propertyIds  = $ownerships->pluck('property_id')->unique();
+        $ownerships      = $user->ownerships()->with('property', 'unit')->get();
+        $memberOwnerships = $user->memberOwnerships()->with('property', 'unit')->get();
+        $allOwnerships   = $ownerships->merge($memberOwnerships)->unique('id');
+
+        $ownershipIds = $allOwnerships->pluck('id');
+        $propertyIds  = $allOwnerships->pluck('property_id')->unique();
 
         $documents = PropertyDocument::whereIn('ownership_id', $ownershipIds)
             ->with('property')
@@ -23,7 +26,7 @@ class PropertyDocumentController extends Controller
             ->get()
             ->groupBy('ownership_id');
 
-        // Admin-uploaded property-level documents visible to this buyer
+        // Admin-uploaded property-level documents visible to this buyer (primary + co-owners)
         $propertyDocuments = PropertyDocument::whereNull('ownership_id')
             ->whereIn('property_id', $propertyIds)
             ->where('is_buyer_visible', true)

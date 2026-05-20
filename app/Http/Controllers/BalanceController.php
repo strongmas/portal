@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ownership;
+use App\Models\PropertyDocument;
 use Illuminate\Http\Request;
 
 class BalanceController extends Controller
@@ -38,6 +39,12 @@ class BalanceController extends Controller
             ->merge($user->memberOwnerships()->with(['property', 'unit'])->get())
             ->unique('id');
 
-        return view('balance.show', compact('ownership', 'allOwnerships', 'userRole'));
+        $adminDocuments = PropertyDocument::where('property_id', $ownership->property_id)
+            ->whereNull('ownership_id')
+            ->where('is_buyer_visible', true)
+            ->latest()
+            ->get();
+
+        return view('balance.show', compact('ownership', 'allOwnerships', 'userRole', 'adminDocuments'));
     }
 }
