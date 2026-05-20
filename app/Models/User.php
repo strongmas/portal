@@ -20,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'first_name', 'last_name', 'email', 'phone',
         'password', 'kyc_verified_at', 'avatar_path',
-        'address', 'bvn_masked', 'is_admin', 'admin_role_id', 'sales_rep_id',
+        'address', 'bvn_masked', 'sales_rep_id',
     ];
 
     protected $hidden = ['password', 'remember_token'];

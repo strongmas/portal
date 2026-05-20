@@ -78,7 +78,6 @@ class AdminBuyerController extends Controller
             'phone'        => $validated['phone'] ?? null,
             'sales_rep_id' => $validated['sales_rep_id'] ?? null,
             'password'     => Hash::make($tempPassword),
-            'is_admin'     => false,
         ]);
 
         $ownership = Ownership::create([

@@ -71,7 +71,9 @@ class GroupController extends Controller
             return back()->with('error', 'Cannot remove the primary owner.');
         }
 
-        $ownership->members()->where('user_id', $member->id)->delete();
+        $deleted = $ownership->members()->where('user_id', $member->id)->delete();
+
+        abort_unless($deleted > 0, 404);
 
         return back()->with('success', 'Member removed.');
     }
@@ -97,6 +99,9 @@ class GroupController extends Controller
     public function updateRole(Request $request, Ownership $ownership, OwnershipMember $ownershipMember)
     {
         $this->authorize('manage', $ownership);
+
+        // Prevent IDOR: ensure the member actually belongs to this ownership
+        abort_unless((int) $ownershipMember->ownership_id === (int) $ownership->id, 403);
 
         $validated = $request->validate(['role' => ['required', 'in:owner,viewer,financial']]);
         $ownershipMember->update($validated);

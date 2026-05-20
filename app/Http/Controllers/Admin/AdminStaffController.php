@@ -41,12 +41,15 @@ class AdminStaffController extends Controller
         $password = Str::random(12);
 
         $staff = User::create([
-            'name'          => $validated['name'],
-            'email'         => $validated['email'],
-            'password'      => bcrypt($password),
-            'is_admin'      => true,
-            'admin_role_id' => $validated['admin_role_id'],
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => bcrypt($password),
         ]);
+
+        // Set privileged fields directly — not via fillable mass assignment
+        $staff->is_admin      = true;
+        $staff->admin_role_id = $validated['admin_role_id'];
+        $staff->save();
 
         Mail::to($staff->email)->send(new StaffWelcomeMail($staff, $password));
 
@@ -71,7 +74,14 @@ class AdminStaffController extends Controller
             'admin_role_id' => ['required', 'exists:admin_roles,id'],
         ]);
 
-        $staff->update($validated);
+        $staff->update([
+            'name'  => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        // Set privileged field directly — not via fillable mass assignment
+        $staff->admin_role_id = $validated['admin_role_id'];
+        $staff->save();
 
         return back()->with('success', 'Staff account updated.');
     }
