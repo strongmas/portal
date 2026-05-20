@@ -272,17 +272,12 @@
                      },
                      {
                          q: 'How long does my balance take to update?',
-                         a: 'After you submit a payment, our team manually verifies the details and your proof of payment. This typically takes 24–48 business hours. Once verified, your outstanding balance and instalment schedule update automatically. Until then the payment will show as pending in your history.',
+                         a: 'After you submit a payment, our team checks the details and your proof of payment for accuracy. If everything is correct they verify it and your outstanding balance updates automatically — this typically takes 24–48 business hours. If the details are wrong, the payment will be flagged so you can correct and resubmit it.',
                          links: [{ label: 'View Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
                          q: 'My payment was flagged — what do I do?',
                          a: 'If our team finds incorrect details (wrong amount, wrong date, unclear proof), they will flag the payment and add a reason. You will see a red Flagged banner on that entry in your payment history. Delete the flagged payment and re-submit it with the correct amount, date, transaction reference, and a clear proof of payment.',
-                         links: [{ label: 'Payment History', url: '{{ route('payments.history') }}' }]
-                     },
-                     {
-                         q: 'How do I download my payment receipt?',
-                         a: 'Receipts are generated automatically once a payment is verified by our team. Open your Payment History, click on any verified payment entry, and a receipt summary panel will appear on the right. From there you can download it as a PDF.',
                          links: [{ label: 'Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
@@ -309,6 +304,21 @@
                          q: 'Where are my property documents?',
                          a: 'The Documents page holds everything in one place — documents you upload (offer letters, deeds of assignment, contracts, survey plans, etc.) and documents shared by Strongmas for your property. Strongmas-uploaded documents also appear directly on your property balance page under the Property Documents section.',
                          links: [{ label: 'My Documents', url: '{{ route('documents.index') }}' }, { label: 'My Properties', url: '{{ route('properties.index') }}' }]
+                     },
+                     {
+                         q: 'What does the Analytics page show?',
+                         a: 'The Analytics page tracks the investment value of each property you own. It shows your original purchase price, the current estimated market value (updated by Strongmas), your total gain or loss in naira and percentage, and your payment progress. Market insights posted by the team — such as price movements and area demand trends — also appear here.',
+                         links: [{ label: 'My Analytics', url: '{{ route('analytics.index') }}' }]
+                     },
+                     {
+                         q: 'What is the Property Map?',
+                         a: 'The Map page shows all your properties plotted on an interactive map. Each pin displays the property name, unit, and address. Clicking a pin takes you directly to that property\'s balance page. If a property does not appear on the map it means location coordinates have not been added yet — contact our team.',
+                         links: [{ label: 'Property Map', url: '{{ route('map.index') }}' }]
+                     },
+                     {
+                         q: 'How do I update my profile or change my password?',
+                         a: 'On your Profile page you can update your full name, phone number, and address, upload or change your profile photo, and change your password. You can also view active login sessions and sign out of devices you no longer use. Your KYC verification status is also shown here.',
+                         links: [{ label: 'My Profile', url: '{{ route('profile') }}' }]
                      },
                  ]
              }">
