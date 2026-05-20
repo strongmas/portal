@@ -78,22 +78,40 @@
         </div>
 
         @if($hasAnyImages)
-        {{-- Room type tabs --}}
-        @php $availableRooms = $unit->images->pluck('room_type')->unique(); @endphp
-        <div style="padding:14px 20px;border-bottom:1px solid var(--line);background:var(--bg-raised);">
-            <div style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
-                        scrollbar-width:none;padding-bottom:2px;">
+        {{-- Room type buttons --}}
+        @php
+            $availableRooms = $unit->images->pluck('room_type')->unique();
+            $roomIcons = [
+                'exterior'   => '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>',
+                'bedroom'    => '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 9V7a2 2 0 012-2h16a2 2 0 012 2v2"/><path d="M2 9h20v9a2 2 0 01-2 2H4a2 2 0 01-2-2V9z"/><path d="M6 9V7"/><path d="M10 9V7"/></svg>',
+                'kitchen'    => '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M8 3v4a1 1 0 001 1h6a1 1 0 001-1V3"/><rect x="3" y="8" width="18" height="13" rx="2"/><line x1="12" y1="8" x2="12" y2="21"/></svg>',
+                'bathroom'   => '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12h16v4a4 4 0 01-4 4H8a4 4 0 01-4-4v-4z"/><path d="M4 12V6a2 2 0 014 0v1"/><line x1="8" y1="21" x2="8" y2="23"/><line x1="16" y1="21" x2="16" y2="23"/></svg>',
+                'living_area'=> '<svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M6 8V6a2 2 0 014 0v2"/><path d="M14 8V6a2 2 0 014 0v2"/><line x1="2" y1="18" x2="2" y2="21"/><line x1="22" y1="18" x2="22" y2="21"/></svg>',
+            ];
+        @endphp
+        <div style="padding:16px 20px;border-bottom:1px solid var(--line);background:var(--bg-raised);">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 @foreach($roomTypes as $key => $label)
                 @if($availableRooms->contains($key))
+                @php $count = $unit->images->where('room_type', $key)->count(); @endphp
                 <button type="button"
                         @click="activeRoom = '{{ $key }}'"
                         :style="activeRoom === '{{ $key }}'
-                            ? 'background:var(--tan);color:#0a1428;border-color:var(--tan);font-weight:700;'
-                            : 'background:transparent;color:var(--fg-dim);border-color:rgba(255,255,255,0.1);font-weight:500;'"
-                        style="padding:7px 18px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
-                               border:1px solid;border-radius:99px;cursor:pointer;
-                               white-space:nowrap;flex-shrink:0;transition:all .18s ease;">
-                    {{ $label }}
+                            ? 'background:var(--tan);color:#0a1428;border-color:var(--tan);box-shadow:0 4px 14px rgba(239,197,157,.35);'
+                            : 'background:var(--bg-card);color:var(--fg-dim);border-color:var(--line);box-shadow:none;'"
+                        style="display:flex;flex-direction:column;align-items:center;gap:6px;
+                               padding:12px 16px;min-width:72px;flex:1;max-width:110px;
+                               border:1px solid;border-radius:14px;cursor:pointer;
+                               transition:all .2s ease;font-family:inherit;">
+                    <span :style="activeRoom === '{{ $key }}' ? 'color:#0a1428;' : 'color:var(--fg-mute);'"
+                          style="transition:color .2s;line-height:1;">{!! $roomIcons[$key] !!}</span>
+                    <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;
+                                 line-height:1.2;text-align:center;white-space:nowrap;">{{ $label }}</span>
+                    <span :style="activeRoom === '{{ $key }}' ? 'background:rgba(10,20,40,.18);color:#0a1428;' : 'background:var(--bg-raised);color:var(--fg-faint);'"
+                          style="font-size:9px;font-weight:700;font-family:\'Geist Mono\',monospace;
+                                 padding:1px 6px;border-radius:99px;transition:all .2s;">
+                        {{ $count }}
+                    </span>
                 </button>
                 @endif
                 @endforeach
