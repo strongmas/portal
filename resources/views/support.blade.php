@@ -199,7 +199,7 @@
                         border-radius:10px;padding:14px;">
                 <p style="font-size:13px;font-weight:700;color:var(--ok);margin:0 0 4px;">✓ Complaint received</p>
                 <p style="font-size:12px;color:var(--fg-dim);margin:0;">
-                    Case <span style="font-family:'Geist Mono',monospace;font-weight:600;color:var(--fg);" x-text="caseNo"></span> — response within 48h.
+                    Case <span style="font-family:'Geist Mono',monospace;font-weight:600;color:var(--fg);" x-text="caseNo"></span> - response within 48h.
                 </p>
                 <button type="button" @click="sub=false"
                         style="margin-top:8px;font-size:11px;color:var(--fg-dim);text-decoration:underline;background:none;border:none;cursor:pointer;">
@@ -218,9 +218,9 @@
                     <option>Other</option>
                 </select>
                 <select name="property_id" class="input-base" style="font-size:13px;">
-                    <option value="">— any property —</option>
+                    <option value="">- any property -</option>
                     @foreach($ownerships as $o)
-                        <option value="{{ $o->property_id }}">{{ $o->display_name ?? '—' }}</option>
+                        <option value="{{ $o->property_id }}">{{ $o->display_name ?? '-' }}</option>
                     @endforeach
                 </select>
                 <textarea name="body" rows="3" required class="input-base"
@@ -267,16 +267,16 @@
                  faqs: [
                      {
                          q: 'How do I log a payment?',
-                         a: 'Go to Log Payment and fill in the amount, date paid, payment method, bank name, and transaction reference — then attach your proof of payment (bank debit alert, teller, or transfer receipt) as a PDF, JPG, or PNG (max 5 MB). You cannot submit without attaching a proof file. Our team reviews every submission and verifies it within 24–48 business hours.',
+                         a: 'Go to Log Payment and fill in the amount, date paid, payment method, bank name, and transaction reference - then attach your proof of payment (bank debit alert, teller, or transfer receipt) as a PDF, JPG, or PNG (max 5 MB). You cannot submit without attaching a proof file. Our team reviews every submission and verifies it within 24–48 business hours.',
                          links: [{ label: 'Log a Payment', url: '{{ route('payments.create') }}' }]
                      },
                      {
                          q: 'How long does my balance take to update?',
-                         a: 'After you submit a payment, our team checks the details and your proof of payment for accuracy. If everything is correct they verify it and your outstanding balance updates automatically — this typically takes 24–48 business hours. If the details are wrong, the payment will be flagged so you can correct and resubmit it.',
+                         a: 'After you submit a payment, our team checks the details and your proof of payment for accuracy. If everything is correct they verify it and your outstanding balance updates automatically - this typically takes 24–48 business hours. If the details are wrong, the payment will be flagged so you can correct and resubmit it.',
                          links: [{ label: 'View Payment History', url: '{{ route('payments.history') }}' }]
                      },
                      {
-                         q: 'My payment was flagged — what do I do?',
+                         q: 'My payment was flagged - what do I do?',
                          a: 'If our team finds incorrect details (wrong amount, wrong date, unclear proof), they will flag the payment and add a reason. You will see a red Flagged banner on that entry in your payment history. Delete the flagged payment and re-submit it with the correct amount, date, transaction reference, and a clear proof of payment.',
                          links: [{ label: 'Payment History', url: '{{ route('payments.history') }}' }]
                      },
@@ -287,12 +287,12 @@
                      },
                      {
                          q: 'Where can I see construction progress?',
-                         a: 'The Project Updates page shows live construction reports for all your properties. You can see the overall progress percentage, current stage (planning, foundation, construction, finishing, completed), a milestone tracker, and every update posted by the Strongmas team — each with photos and notes.',
+                         a: 'The Project Updates page shows live construction reports for all your properties. You can see the overall progress percentage, current stage (planning, foundation, construction, finishing, completed), a milestone tracker, and every update posted by the Strongmas team - each with photos and notes.',
                          links: [{ label: 'Project Updates', url: '{{ route('project-updates.index') }}' }]
                      },
                      {
                          q: 'Can I share property access with a family member or investor?',
-                         a: 'Yes. As the primary owner, open your property\'s balance page and tap Share Access. Invite anyone by email and choose their level: Viewer (project updates and analytics only, cannot make payments), Financial (sees all payment data and can comment), or Co-Owner (full access). The invitation email expires after 7 days — the recipient must create or log in to a Strongmas account to accept.',
+                         a: 'Yes. As the primary owner, open your property\'s balance page and tap Share Access. Invite anyone by email and choose their level: Viewer (project updates and analytics only, cannot make payments), Financial (sees all payment data and can comment), or Co-Owner (full access). The invitation email expires after 7 days - the recipient must create or log in to a Strongmas account to accept.',
                          links: [{ label: 'My Properties', url: '{{ route('properties.index') }}' }]
                      },
                      {
@@ -302,17 +302,17 @@
                      },
                      {
                          q: 'Where are my property documents?',
-                         a: 'The Documents page holds everything in one place — documents you upload (offer letters, deeds of assignment, contracts, survey plans, etc.) and documents shared by Strongmas for your property. Strongmas-uploaded documents also appear directly on your property balance page under the Property Documents section.',
+                         a: 'The Documents page holds everything in one place - documents you upload (offer letters, deeds of assignment, contracts, survey plans, etc.) and documents shared by Strongmas for your property. Strongmas-uploaded documents also appear directly on your property balance page under the Property Documents section.',
                          links: [{ label: 'My Documents', url: '{{ route('documents.index') }}' }, { label: 'My Properties', url: '{{ route('properties.index') }}' }]
                      },
                      {
                          q: 'What does the Analytics page show?',
-                         a: 'The Analytics page tracks the investment value of each property you own. It shows your original purchase price, the current estimated market value (updated by Strongmas), your total gain or loss in naira and percentage, and your payment progress. Market insights posted by the team — such as price movements and area demand trends — also appear here.',
+                         a: 'The Analytics page tracks the investment value of each property you own. It shows your original purchase price, the current estimated market value (updated by Strongmas), your total gain or loss in naira and percentage, and your payment progress. Market insights posted by the team - such as price movements and area demand trends - also appear here.',
                          links: [{ label: 'My Analytics', url: '{{ route('analytics.index') }}' }]
                      },
                      {
                          q: 'What is the Property Map?',
-                         a: 'The Map page shows all your properties plotted on an interactive map. Each pin displays the property name, unit, and address. Clicking a pin takes you directly to that property\'s balance page. If a property does not appear on the map it means location coordinates have not been added yet — contact our team.',
+                         a: 'The Map page shows all your properties plotted on an interactive map. Each pin displays the property name, unit, and address. Clicking a pin takes you directly to that property\'s balance page. If a property does not appear on the map it means location coordinates have not been added yet - contact our team.',
                          links: [{ label: 'Property Map', url: '{{ route('map.index') }}' }]
                      },
                      {
