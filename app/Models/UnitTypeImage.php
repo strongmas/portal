@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class UnitTypeImage extends Model
 {
@@ -18,7 +19,7 @@ class UnitTypeImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return asset('storage/' . $this->path);
+        return Storage::disk('public')->url($this->path);
     }
 
     public static array $roomTypes = [
