@@ -41,4 +41,10 @@ return [
         'redirect_uri'  => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    // Shared secret for the read-only MD reports API consumed by the
+    // external Infiniti/Strongforce dashboard (mdReports.php on Namecheap).
+    'md_reports' => [
+        'token' => env('MD_REPORTS_TOKEN'),
+    ],
+
 ];
