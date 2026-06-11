@@ -5,15 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectUpdate extends Model
 {
     protected $fillable = [
         'property_id', 'title', 'body', 'progress_percentage',
         'stage', 'youtube_url', 'estimated_completion', 'posted_by',
+        'video_path', 'video_expires_at',
     ];
 
-    protected $casts = ['estimated_completion' => 'date'];
+    protected $casts = [
+        'estimated_completion' => 'date',
+        'video_expires_at' => 'datetime',
+    ];
 
     public function property(): BelongsTo
     {
@@ -54,5 +59,23 @@ class ProjectUpdate extends Model
         }
 
         return $id ? "https://www.youtube.com/embed/{$id}" : null;
+    }
+
+    public function getVideoUrlAttribute(): ?string
+    {
+        if (!$this->video_path || $this->isVideoExpired()) {
+            return null;
+        }
+        return Storage::disk('public')->url($this->video_path);
+    }
+
+    public function hasVideo(): bool
+    {
+        return !is_null($this->video_path) && !$this->isVideoExpired();
+    }
+
+    public function isVideoExpired(): bool
+    {
+        return $this->video_expires_at && now()->gt($this->video_expires_at);
     }
 }

@@ -18,6 +18,26 @@
             <div style="font-size:13px;color:var(--fg-dim);line-height:1.6;white-space:pre-wrap;">{{ $projectUpdate->body }}</div>
         </div>
 
+        @if($projectUpdate->hasVideo())
+        <div class="card" style="padding:16px 20px;margin-bottom:16px;border:1px solid var(--line);border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="font-size:15px;font-weight:600;color:var(--fg);">Walkthrough Video</h2>
+                <form method="POST" action="{{ route('admin.project-updates.video.destroy', $projectUpdate) }}"
+                      style="display:inline;">
+                    @csrf @method('DELETE')
+                    <button type="submit"
+                            style="font-size:12px;color:var(--danger);background:none;border:none;cursor:pointer;text-decoration:underline;"
+                            onclick="return confirm('Delete this video?')">Remove</button>
+                </form>
+            </div>
+            <p style="font-size:12px;color:var(--fg-mute);margin:0 0 12px;">Expires: <strong>{{ $projectUpdate->video_expires_at->format('d M Y, H:i') }}</strong></p>
+            <video controls playsinline preload="metadata"
+                   style="width:100%;border-radius:8px;background:#000;display:block;max-height:300px;">
+                <source src="{{ $projectUpdate->video_url }}" type="video/mp4">
+            </video>
+        </div>
+        @endif
+
         @if($projectUpdate->youtube_embed_url)
         <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;">
             <div style="position:relative;padding-bottom:56.25%;height:0;">

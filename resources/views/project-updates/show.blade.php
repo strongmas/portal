@@ -77,6 +77,49 @@
         <div style="font-size:15px;line-height:1.85;color:var(--fg-mute);">{!! nl2br(e($projectUpdate->body)) !!}</div>
     </div>
 
+    {{-- Property Walkthrough Video --}}
+    @if($projectUpdate->hasVideo())
+    <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--hi);"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span style="font-size:13px;font-weight:600;color:var(--fg);">Walkthrough Video</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:11px;color:var(--fg-dim);">Expires: {{ $projectUpdate->video_expires_at->format('d M Y') }}</span>
+            </div>
+        </div>
+        <div style="padding:16px 20px;">
+            {{-- Video with watermark overlay --}}
+            <div style="position:relative;display:inline-block;width:100%;margin-bottom:12px;">
+                <video controls playsinline preload="metadata"
+                       style="width:100%;border-radius:8px;background:#000;display:block;"
+                       controlsList="nodownload">
+                    <source src="{{ $projectUpdate->video_url }}" type="video/mp4">
+                </video>
+                <div style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.55);font-size:13px;font-weight:600;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,0.6);">
+                    Strongmas
+                </div>
+            </div>
+
+            {{-- Download & Share buttons --}}
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <a href="{{ route('project-updates.video.download', $projectUpdate) }}"
+                   style="flex:1;min-width:120px;padding:10px 16px;background:var(--hi);color:#000;border:none;border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;text-align:center;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                </a>
+                <a href="https://wa.me/?text={{ urlencode('Check out this property walkthrough from Strongmas: ' . route('project-updates.show', $projectUpdate)) }}"
+                   target="_blank" rel="noopener"
+                   style="flex:1;min-width:120px;padding:10px 16px;background:var(--bg-raised);color:var(--fg);border:1px solid var(--line);border-radius:8px;font-weight:600;font-size:13px;text-decoration:none;text-align:center;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.006a9.87 9.87 0 00-5.031 1.378l-.361.214-3.741-.982.998 3.645-.235.364a9.864 9.864 0 001.512 5.514c.732 1.243 1.882 2.524 3.465 3.46h.006c1.07.629 1.98 1.005 2.755 1.245.484.119 1.02.108 1.452-.021l.41-.052 3.741.982-.998-3.645.235-.364c.552-.935 1.01-1.9 1.280-2.858.13-.526.167-1.056.082-1.572-.236-1.558-.958-2.945-2.063-3.861l-.329-.267c-.863-.704-1.916-1.177-3.053-1.378-.577-.072-1.165-.072-1.73.027z"/></svg>
+                    Share
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- YouTube video --}}
     @if($projectUpdate->youtube_embed_url)
     <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:20px;">

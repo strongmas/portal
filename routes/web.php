@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/project-updates/{projectUpdate}', [ProjectUpdateController::class, 'show'])->name('project-updates.show');
     Route::post('/project-updates/{projectUpdate}/comments', [ProjectUpdateController::class, 'comment'])->name('project-updates.comments.store');
     Route::get('/project-updates/documents/{document}/download', [ProjectUpdateController::class, 'downloadDocument'])->name('project-updates.documents.download');
+    Route::get('/project-updates/{projectUpdate}/video/download', [ProjectUpdateController::class, 'downloadVideo'])->name('project-updates.video.download');
 
     // Login Activity
     Route::get('/login-activity', [LoginActivityController::class, 'index'])->name('login-activity.index');
@@ -179,6 +180,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('properties/{property}/project-updates/{projectUpdate}/comments', [AdminProjectUpdateController::class, 'storeComment'])->name('project-updates.comments.store');
     Route::delete('project-update-images/{image}', [AdminProjectUpdateController::class, 'destroyImage'])->name('project-update-images.destroy');
     Route::delete('project-update-documents/{document}', [AdminProjectUpdateController::class, 'destroyDocument'])->name('project-update-documents.destroy');
+    Route::delete('project-updates/{projectUpdate}/video', [AdminProjectUpdateController::class, 'destroyVideo'])->name('project-updates.video.destroy');
 
     // ── Super admin only ───────────────────────────────────────────────────
     Route::middleware('superadmin')->group(function () {

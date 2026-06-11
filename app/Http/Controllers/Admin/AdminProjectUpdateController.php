@@ -38,6 +38,7 @@ class AdminProjectUpdateController extends Controller
             'progress_percentage'  => ['required', 'integer', 'min:0', 'max:100'],
             'stage'                => ['nullable', 'string', 'max:100'],
             'youtube_url'          => ['nullable', 'url', 'max:500'],
+            'video'                => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:30720'],
             'estimated_completion' => ['nullable', 'date'],
             'images'               => ['nullable', 'array', 'max:10'],
             'images.*'             => ['image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
@@ -52,12 +53,24 @@ class AdminProjectUpdateController extends Controller
             'progress_percentage'  => $validated['progress_percentage'],
             'stage'                => $validated['stage'] ?? null,
             'youtube_url'          => $validated['youtube_url'] ?? null,
-            'estimated_completion' => $validated['estimated_completion'] ?? null,
             'posted_by'            => auth()->id(),
         ]);
 
         if ($validated['progress_percentage'] >= 100) {
             $property->update(['project_status' => 'completed', 'is_off_plan' => false]);
+        }
+
+        if ($request->hasFile('video')) {
+            $path = 'project-update-videos/' . $update->id . '/' . uniqid() . '.mp4';
+            Storage::disk('public')->putFileAs(
+                dirname($path),
+                $request->file('video'),
+                basename($path)
+            );
+            $update->update([
+                'video_path' => $path,
+                'video_expires_at' => now()->addDays(14),
+            ]);
         }
 
         if ($request->hasFile('images')) {
@@ -118,5 +131,14 @@ class AdminProjectUpdateController extends Controller
         Storage::disk('private')->delete($document->file_path);
         $document->delete();
         return back()->with('success', 'Document removed.');
+    }
+
+    public function destroyVideo(ProjectUpdate $projectUpdate)
+    {
+        if ($projectUpdate->video_path) {
+            Storage::disk('public')->delete($projectUpdate->video_path);
+            $projectUpdate->update(['video_path' => null, 'video_expires_at' => null]);
+        }
+        return back()->with('success', 'Video removed.');
     }
 }

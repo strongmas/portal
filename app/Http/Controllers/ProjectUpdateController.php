@@ -113,4 +113,18 @@ class ProjectUpdateController extends Controller
 
         return Storage::disk('private')->download($doc->file_path, $doc->original_name);
     }
+
+    public function downloadVideo(ProjectUpdate $projectUpdate)
+    {
+        $user = auth()->user();
+        $propertyIds = $user->ownerships()->pluck('property_id')
+            ->merge($user->memberOwnerships()->pluck('ownerships.property_id'))
+            ->unique();
+
+        abort_unless($propertyIds->contains($projectUpdate->property_id), 403);
+        abort_if($projectUpdate->isVideoExpired(), 404, 'Video has expired.');
+        abort_unless($projectUpdate->video_path && Storage::disk('public')->exists($projectUpdate->video_path), 404);
+
+        return Storage::disk('public')->download($projectUpdate->video_path, "walkthrough-{$projectUpdate->id}.mp4");
+    }
 }

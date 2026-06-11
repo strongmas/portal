@@ -45,6 +45,25 @@
                     </div>
                 </div>
 
+                {{-- Video Upload --}}
+                <div style="margin-bottom:20px;"
+                     x-data="{ videoFile: null, videoSize: 0, sizeWarning: false }">
+                    <label class="eyebrow" style="display:block;margin-bottom:8px;">Property Walkthrough Video (Optional)</label>
+                    <p style="font-size:12px;color:var(--fg-dim);margin:0 0 12px;">MP4, WebM or MOV · max 30 MB · auto-deletes after 14 days</p>
+
+                    <input type="file" name="video" accept="video/mp4,video/webm,.mov"
+                           @change="videoFile = $el.files[0]; videoSize = videoFile ? videoFile.size : 0; sizeWarning = videoSize > 30720000;"
+                           class="input-base" style="font-size:12px;padding:8px 10px;width:100%;display:block;">
+
+                    <template x-if="sizeWarning">
+                        <p style="color:var(--danger);font-size:12px;margin-top:6px;">⚠️ File is larger than 30 MB. Please compress and retry.</p>
+                    </template>
+                    <template x-if="videoFile && !sizeWarning">
+                        <p style="font-size:12px;color:var(--fg-dim);margin-top:6px;">Selected: <strong x-text="videoFile.name"></strong></p>
+                    </template>
+                    @error('video')<p style="color:var(--danger);font-size:11px;margin-top:4px;">{{ $message }}</p>@enderror
+                </div>
+
                 {{-- Attach Images --}}
                 <div style="margin-bottom:20px;"
                      x-data="{ images: [{ id: 0 }], next: 1 }">
