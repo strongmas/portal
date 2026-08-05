@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     protected $fillable = [
-        'ownership_id', 'user_id', 'amount_kobo',
+        'ownership_id', 'user_id', 'payment_group_id', 'amount_kobo',
         'paid_on', 'reference', 'bank', 'notes', 'proof_path',
         'flagged_at', 'flag_reason',
     ];
@@ -21,6 +21,39 @@ class Payment extends Model
     public function getIsFlaggedAttribute(): bool
     {
         return !is_null($this->flagged_at);
+    }
+
+    public function getIsSplitAttribute(): bool
+    {
+        return !is_null($this->payment_group_id);
+    }
+
+    /**
+     * The other legs of the same transfer (empty for an ordinary payment).
+     */
+    public function groupSiblings()
+    {
+        if (!$this->payment_group_id) {
+            return collect();
+        }
+
+        return static::where('payment_group_id', $this->payment_group_id)
+            ->where('id', '!=', $this->id)
+            ->with(['ownership.property', 'ownership.unit'])
+            ->get();
+    }
+
+    /**
+     * Full value of the transfer this payment belongs to — its own amount for
+     * an ordinary payment, the sum of all legs for a split one.
+     */
+    public function getGroupTotalKoboAttribute(): int
+    {
+        if (!$this->payment_group_id) {
+            return (int) $this->amount_kobo;
+        }
+
+        return (int) static::where('payment_group_id', $this->payment_group_id)->sum('amount_kobo');
     }
 
     public function ownership(): BelongsTo
@@ -40,10 +73,21 @@ class Payment extends Model
         return "RCP-{$ym}-{$seq}";
     }
 
+    /**
+     * Which instalment this payment covers. Must use the same ordering as
+     * PaymentController::recalculateSchedule (paid_on, then id) — ordering by id
+     * alone put back-dated payments on a different instalment in the receipt
+     * than in the schedule.
+     */
     public function getInstalmentNumberAttribute(): int
     {
         return Payment::where('ownership_id', $this->ownership_id)
-            ->where('id', '<=', $this->id)
+            ->where(function ($query) {
+                $query->where('paid_on', '<', $this->paid_on)
+                    ->orWhere(function ($q) {
+                        $q->where('paid_on', $this->paid_on)->where('id', '<=', $this->id);
+                    });
+            })
             ->count();
     }
 }

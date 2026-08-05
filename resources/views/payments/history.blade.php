@@ -154,6 +154,20 @@
                                         <div class="flex justify-between gap-2"><span style="color:var(--fg-dim);flex-shrink:0;">Ref</span><span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--fg-mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;min-width:0;">{{ $payment->reference }}</span></div>
                                     @endif
                                     <div class="flex justify-between"><span style="color:var(--fg-dim);">Instalment</span><strong style="color:var(--fg);">#{{ $payment->instalment_number }}</strong></div>
+                                    @if($payment->is_split)
+                                        @php $siblings = $payment->groupSiblings(); @endphp
+                                        <div style="padding:10px 12px;background:var(--bg-raised);border:1px solid var(--line);border-radius:var(--r-md);">
+                                            <div style="font-size:11px;color:var(--fg-dim);margin-bottom:6px;">
+                                                Part of one transfer of {{ naira($payment->group_total_kobo) }}, also covering:
+                                            </div>
+                                            @foreach($siblings as $sibling)
+                                                <div class="flex justify-between gap-2" style="font-size:12px;">
+                                                    <span style="color:var(--fg-mute);">{{ $sibling->ownership?->display_name ?? '—' }}</span>
+                                                    <span style="font-family:'Geist Mono',monospace;color:var(--fg-mute);white-space:nowrap;">{{ naira($sibling->amount_kobo) }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="divider"></div>
                                 <div class="flex items-center justify-between">

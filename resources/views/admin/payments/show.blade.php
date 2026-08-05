@@ -68,6 +68,24 @@
                 </div>
             @endforeach
         </div>
+
+        @if($payment->is_split)
+            @php $siblings = $payment->groupSiblings(); @endphp
+            <div style="padding:16px 20px;border-top:1px solid var(--line);background:var(--bg-raised);">
+                <div style="font-size:11px;color:var(--fg-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;font-family:'Geist Mono',monospace;">Split payment</div>
+                <p style="font-size:13px;color:var(--fg-mute);margin-bottom:10px;">
+                    One transfer of {{ naira($payment->group_total_kobo) }} split across {{ $siblings->count() + 1 }} properties — the same proof file backs every leg.
+                </p>
+                @foreach($siblings as $sibling)
+                    <div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:4px 0;">
+                        <a href="{{ route('admin.payments.show', $sibling) }}" style="color:var(--tan);text-decoration:underline;text-underline-offset:3px;">
+                            {{ $sibling->ownership->display_name ?? '—' }}
+                        </a>
+                        <span style="font-family:'Geist Mono',monospace;white-space:nowrap;color:var(--fg);">{{ naira($sibling->amount_kobo) }}</span>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 
     {{-- Balance snapshot --}}
