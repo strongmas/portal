@@ -38,6 +38,24 @@ class UploadsDoctor extends Command
                 : 'NOT SET'));
             $this->line('  secret:   ' . (config('filesystems.disks.private.secret') ? '(set)' : 'NOT SET'));
             $this->line('  Uploads go to object storage — local directory permissions do not apply.');
+            $this->newLine();
+
+            // A cached config keeps whatever credentials were present at build
+            // time. If the platform has since rotated them, the running app is
+            // still signing requests with the old key — which reads as a 401
+            // even though the dashboard shows correct values.
+            $this->line('  config cached: ' . (app()->configurationIsCached() ? 'YES' : 'no'));
+
+            foreach (['AWS_ACCESS_KEY_ID' => 'key', 'AWS_SECRET_ACCESS_KEY' => 'secret', 'AWS_BUCKET' => 'bucket'] as $var => $configKey) {
+                $live   = getenv($var) ?: null;
+                $inUse  = config("filesystems.disks.private.{$configKey}");
+
+                if ($live !== null && $inUse !== null && $live !== $inUse) {
+                    $ok = false;
+                    $this->error("  → {$var} in the environment does NOT match the value the app is using.");
+                    $this->error('    The config cache is stale. Redeploy, or run: php artisan config:clear');
+                }
+            }
         } else {
             $root = storage_path('app/private');
             $this->line("  root:     {$root}");
@@ -62,6 +80,16 @@ class UploadsDoctor extends Command
         } catch (\Throwable $e) {
             $ok = false;
             $this->error('  FAILED: ' . $e->getMessage());
+
+            if (str_contains($e->getMessage(), 'Unauthorized') || str_contains($e->getMessage(), '401')) {
+                $this->newLine();
+                $this->warn('  A 401 on every operation means the credentials themselves are rejected.');
+                $this->warn('  It is not a bucket policy or a path problem. Check, in order:');
+                $this->warn('   1. Custom AWS_* environment variables overriding the platform-injected ones');
+                $this->warn('      — remove the custom entries so the injected values win.');
+                $this->warn('   2. The storage token has been rotated or revoked — re-issue it and redeploy.');
+                $this->warn('   3. The bucket belongs to a different environment than this one.');
+            }
         }
         $this->newLine();
 
