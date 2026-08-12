@@ -38,6 +38,16 @@ class UploadsDoctor extends Command
                 : 'NOT SET'));
             $this->line('  secret:   ' . (config('filesystems.disks.private.secret') ? '(set)' : 'NOT SET'));
             $this->line('  Uploads go to object storage — local directory permissions do not apply.');
+
+            // Proofs and public images must not share a bucket: anything reachable
+            // over the public URL bypasses the app's authorisation checks.
+            if (config('filesystems.disks.private.bucket') === config('filesystems.disks.public.bucket')) {
+                $ok = false;
+                $this->newLine();
+                $this->error('  → Payment proofs share a bucket with public images.');
+                $this->error('    If that bucket is public, proof documents are readable by URL without');
+                $this->error('    logging in. Create a separate non-public bucket and set AWS_PRIVATE_BUCKET.');
+            }
             $this->newLine();
 
             // A cached config keeps whatever credentials were present at build

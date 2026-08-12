@@ -59,13 +59,16 @@ return [
             'report' => false,
         ],
 
-        'private' => env('AWS_BUCKET') ? [
+        // Payment proofs, property documents and support attachments live here.
+        // Prefer a dedicated non-public bucket: the "public" disk above may be
+        // served over a public URL, and these files must never be.
+        'private' => env('AWS_PRIVATE_BUCKET', env('AWS_BUCKET')) ? [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'key' => env('AWS_PRIVATE_ACCESS_KEY_ID', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('AWS_PRIVATE_SECRET_ACCESS_KEY', env('AWS_SECRET_ACCESS_KEY')),
             'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
+            'bucket' => env('AWS_PRIVATE_BUCKET', env('AWS_BUCKET')),
+            'url' => null,
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'private',
