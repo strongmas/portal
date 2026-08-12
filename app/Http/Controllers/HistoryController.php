@@ -35,6 +35,20 @@ class HistoryController extends Controller
         abort_unless(auth()->user()->is_admin || (int) $payment->user_id === (int) auth()->id(), 403);
         abort_if(is_null($payment->proof_path), 404);
 
-        return Storage::disk('private')->response($payment->proof_path);
+        // Report why a proof cannot be served rather than showing a bare 500 —
+        // a missing object and an unreachable storage backend look identical to
+        // the buyer otherwise.
+        try {
+            if (!Storage::disk('private')->exists($payment->proof_path)) {
+                abort(404, 'This proof of payment is no longer available. Please contact support.');
+            }
+
+            return Storage::disk('private')->response($payment->proof_path);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+            abort(503, 'Proof of payment storage is temporarily unavailable. Please try again shortly.');
+        }
     }
 }

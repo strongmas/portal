@@ -250,22 +250,32 @@ class PaymentController extends Controller
      */
     protected function storeProof(Request $request, array $context = []): string|false
     {
+        $failure = null;
+
         try {
             $path = $request->file('proof')->store(
                 'payment-proofs/' . $request->user()->id,
                 'private'
             );
+
+            // The existence check can throw too — on a remote disk (S3/R2) a bad
+            // credential fails the HEAD request, not just the PUT.
+            if ($path && !Storage::disk('private')->exists($path)) {
+                $path = false;
+            }
         } catch (\Throwable $e) {
-            $path = false;
+            $path    = false;
+            $failure = $e->getMessage();
             report($e);
         }
 
-        if (!$path || !Storage::disk('private')->exists($path)) {
+        if (!$path) {
             Log::error('Payment proof upload failed', array_merge([
                 'user_id'     => $request->user()->id,
                 'original'    => $request->file('proof')?->getClientOriginalName(),
                 'error'       => $request->file('proof')?->getError(),
-                'stored_path' => $path,
+                'disk'        => config('filesystems.disks.private.driver'),
+                'reason'      => $failure,
             ], $context));
 
             return false;
@@ -287,7 +297,13 @@ class PaymentController extends Controller
             ->exists();
 
         if ($payment->proof_path && !$proofStillInUse) {
-            Storage::disk('private')->delete($payment->proof_path);
+            // A storage outage must not block the buyer from correcting their
+            // ledger — leave the orphaned file behind and carry on.
+            try {
+                Storage::disk('private')->delete($payment->proof_path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         $payment->delete();
