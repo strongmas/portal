@@ -54,16 +54,33 @@ class UploadsDoctor extends Command
             // time. If the platform has since rotated them, the running app is
             // still signing requests with the old key — which reads as a 401
             // even though the dashboard shows correct values.
-            $this->line('  config cached: ' . (app()->configurationIsCached() ? 'YES' : 'no'));
+            $cached = app()->configurationIsCached();
+            $this->line('  config cached: ' . ($cached ? 'YES' : 'no'));
 
-            foreach (['AWS_ACCESS_KEY_ID' => 'key', 'AWS_SECRET_ACCESS_KEY' => 'secret', 'AWS_BUCKET' => 'bucket'] as $var => $configKey) {
-                $live   = getenv($var) ?: null;
-                $inUse  = config("filesystems.disks.private.{$configKey}");
+            // Only a cached config can drift from the environment. Compare each
+            // variable against the disk it actually feeds: the private disk reads
+            // AWS_PRIVATE_* when those are set, so a difference there is by design.
+            if ($cached) {
+                $privateVars = env('AWS_PRIVATE_BUCKET')
+                    ? ['AWS_PRIVATE_ACCESS_KEY_ID' => 'key', 'AWS_PRIVATE_SECRET_ACCESS_KEY' => 'secret', 'AWS_PRIVATE_BUCKET' => 'bucket']
+                    : ['AWS_ACCESS_KEY_ID' => 'key', 'AWS_SECRET_ACCESS_KEY' => 'secret', 'AWS_BUCKET' => 'bucket'];
 
-                if ($live !== null && $inUse !== null && $live !== $inUse) {
-                    $ok = false;
-                    $this->error("  → {$var} in the environment does NOT match the value the app is using.");
-                    $this->error('    The config cache is stale. Redeploy, or run: php artisan config:clear');
+                $checks = [
+                    'public'  => ['AWS_ACCESS_KEY_ID' => 'key', 'AWS_SECRET_ACCESS_KEY' => 'secret', 'AWS_BUCKET' => 'bucket'],
+                    'private' => $privateVars,
+                ];
+
+                foreach ($checks as $disk => $vars) {
+                    foreach ($vars as $var => $configKey) {
+                        $live  = getenv($var) ?: null;
+                        $inUse = config("filesystems.disks.{$disk}.{$configKey}");
+
+                        if ($live !== null && $inUse !== null && $live !== $inUse) {
+                            $ok = false;
+                            $this->error("  → {$var} does not match what the \"{$disk}\" disk is using.");
+                            $this->error('    The config cache is stale. Redeploy, or run: php artisan config:clear');
+                        }
+                    }
                 }
             }
         } else {
