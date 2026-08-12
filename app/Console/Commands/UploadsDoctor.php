@@ -65,6 +65,19 @@ class UploadsDoctor extends Command
                 $ok = false;
                 $this->error('  → uploads cannot be saved. Create the directory and make it writable by the web server user.');
             }
+
+            // On containerised hosting the local disk does not survive a deploy.
+            // Writes succeed, so nothing looks wrong until the files are gone.
+            if (app()->environment('production')) {
+                $ok = false;
+                $this->newLine();
+                $this->error('  → DANGER: production is storing uploads on the local disk.');
+                $this->error('    AWS_BUCKET is unset, so the private disk fell back to local storage.');
+                $this->error('    On container hosting (Laravel Cloud, Docker, Fly, Heroku) this directory is');
+                $this->error('    wiped on every deploy and is not shared between instances. Uploads will');
+                $this->error('    appear to succeed and then disappear.');
+                $this->error('    Attach object storage and set AWS_BUCKET before accepting more uploads.');
+            }
         }
         $this->newLine();
 
