@@ -149,6 +149,20 @@ class UploadsDoctor extends Command
         if ($missingFile->isNotEmpty()) {
             $ok = false;
             $this->error('  → the database points at files that are not in storage (lost in a deploy, or written to a different backend).');
+            $this->newLine();
+            $this->line('  These buyers must re-submit their proof:');
+
+            foreach (Payment::with(['user', 'ownership.property'])->whereIn('id', $missingFile->pluck('id'))->get() as $payment) {
+                $this->line(sprintf(
+                    '    #%d  %s <%s>  %s  paid %s  ref %s',
+                    $payment->id,
+                    $payment->user->name ?? 'unknown buyer',
+                    $payment->user->email ?? '—',
+                    naira($payment->amount_kobo),
+                    $payment->paid_on?->format('d M Y') ?? '—',
+                    $payment->reference ?: '—'
+                ));
+            }
         }
         $this->newLine();
 
