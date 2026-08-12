@@ -62,6 +62,24 @@ class MigratePrivateFiles extends Command
         );
         $dest = $this->client($destKey, $destSecret);
 
+        // Prove we can actually write to the destination before reporting on
+        // thousands of objects. Without this, bad credentials are indistinguishable
+        // from an empty destination — every object just looks like it needs copying.
+        $probe = '_migrate-probe/' . uniqid() . '.txt';
+
+        try {
+            $dest->putObject(['Bucket' => $destBucket, 'Key' => $probe, 'Body' => 'preflight']);
+            $dest->deleteObject(['Bucket' => $destBucket, 'Key' => $probe]);
+            $this->line('  destination write access: ok');
+        } catch (\Throwable $e) {
+            $this->error('  destination is not writable: ' . explode("\n", $e->getMessage())[0]);
+            $this->error('  Check --dest-bucket, --dest-key and --dest-secret (are they still placeholders?).');
+
+            return self::FAILURE;
+        }
+
+        $this->newLine();
+
         $copied = $skipped = $failed = 0;
 
         foreach ($prefixes as $prefix) {
