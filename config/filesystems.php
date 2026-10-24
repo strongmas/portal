@@ -84,6 +84,23 @@ return [
             'report' => true,
         ],
 
+        // Nightly database dumps and copies of every uploaded file (backup:run).
+        // Must be a different provider or account from the app's own storage:
+        // in Sept 2026 one billing lapse deleted the database and both app
+        // buckets together, because they all lived in the same place.
+        'backups' => [
+            'driver' => 's3',
+            'key' => env('BACKUP_ACCESS_KEY_ID'),
+            'secret' => env('BACKUP_SECRET_ACCESS_KEY'),
+            'region' => env('BACKUP_REGION', 'auto'),
+            'bucket' => env('BACKUP_BUCKET'),
+            'endpoint' => env('BACKUP_ENDPOINT'),
+            'use_path_style_endpoint' => env('BACKUP_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
