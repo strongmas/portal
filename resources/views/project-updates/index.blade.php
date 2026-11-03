@@ -40,7 +40,7 @@
 @forelse($properties as $property)
 @php
     $latest     = $property->projectUpdates->first();
-    $progress   = $latest?->progress_percentage ?? 0;
+    $progress   = $latest?->progress_percentage;
     $stageLabel = $latest?->stage ?? ($property->project_status ?? null);
 
     $statusColors = [
@@ -72,8 +72,8 @@
                 <p style="font-size:13px;color:rgba(255,255,255,0.7);margin:0;">{{ $property->address }}</p>
             </div>
             <div style="text-align:right;">
-                <div style="font-size:32px;font-weight:800;color:var(--tan);font-family:'Geist Mono',monospace;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,0.4);">{{ $progress }}%</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:.06em;text-transform:uppercase;">Progress</div>
+                @if($progress !== null)<div style="font-size:32px;font-weight:800;color:var(--tan);font-family:'Geist Mono',monospace;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,0.4);">{{ $progress }}%</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:.06em;text-transform:uppercase;">Progress</div>@endif
             </div>
         </div>
     </div>
@@ -85,8 +85,8 @@
             <p style="font-size:13px;color:var(--fg-dim);margin:0;">{{ $property->address }}</p>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:32px;font-weight:800;color:var(--tan);font-family:'Geist Mono',monospace;line-height:1;">{{ $progress }}%</div>
-            <div style="font-size:11px;color:var(--fg-mute);letter-spacing:.06em;text-transform:uppercase;">Progress</div>
+            @if($progress !== null)<div style="font-size:32px;font-weight:800;color:var(--tan);font-family:'Geist Mono',monospace;line-height:1;">{{ $progress }}%</div>
+            <div style="font-size:11px;color:var(--fg-mute);letter-spacing:.06em;text-transform:uppercase;">Progress</div>@endif
         </div>
     </div>
     @endif
@@ -96,7 +96,7 @@
         {{-- Progress bar + Stage --}}
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
             <div style="flex:1;background:var(--bg-hover);border-radius:99px;height:8px;overflow:hidden;">
-                <div style="height:8px;border-radius:99px;width:{{ $progress }}%;background:linear-gradient(90deg,var(--tan-dark),var(--tan));transition:width 1s var(--ease);"></div>
+                @if($progress !== null)<div style="height:8px;border-radius:99px;width:{{ $progress }}%;background:linear-gradient(90deg,var(--tan-dark),var(--tan));transition:width 1s var(--ease);"></div>@endif
             </div>
             @if($stageLabel)
             <span style="font-size:12px;font-weight:600;background:{{ $sc['bg'] }};color:{{ $sc['text'] }};border:1px solid {{ $sc['border'] }};padding:3px 12px;border-radius:99px;white-space:nowrap;">

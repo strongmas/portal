@@ -15,13 +15,17 @@ h2{color:#1a1a1a;margin-top:0;}
     @if($update->stage)
     <p style="margin:0 0 12px;color:#666;font-size:13px;">Stage: {{ $update->stage }}</p>
     @endif
+    @if($update->progress_percentage !== null)
 
     <div class="progress-wrap">
         <div class="progress-bar" style="width:{{ $update->progress_percentage }}%"></div>
     </div>
     <p style="font-size:13px;color:#666;margin:0 0 20px;">Overall progress: <strong>{{ $update->progress_percentage }}%</strong></p>
+    @endif
 
+    @if($update->body)
     <p style="color:#444;line-height:1.6;">{{ Str::limit(strip_tags($update->body), 300) }}</p>
+    @endif
 
     <a href="{{ route('project-updates.show', $update) }}" class="btn">View Full Update</a>
 

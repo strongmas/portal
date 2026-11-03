@@ -34,8 +34,8 @@ class AdminProjectUpdateController extends Controller
     {
         $validated = $request->validate([
             'title'                => ['required', 'string', 'max:200'],
-            'body'                 => ['required', 'string'],
-            'progress_percentage'  => ['required', 'integer', 'min:0', 'max:100'],
+            'body'                 => ['nullable', 'string'],
+            'progress_percentage'  => ['nullable', 'integer', 'min:0', 'max:100'],
             'stage'                => ['nullable', 'string', 'max:100'],
             'youtube_url'          => ['nullable', 'url', 'max:500'],
             'video'                => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:30720'],
@@ -49,14 +49,14 @@ class AdminProjectUpdateController extends Controller
         $update = ProjectUpdate::create([
             'property_id'          => $property->id,
             'title'                => $validated['title'],
-            'body'                 => $validated['body'],
-            'progress_percentage'  => $validated['progress_percentage'],
+            'body'                 => $validated['body'] ?? null,
+            'progress_percentage'  => $validated['progress_percentage'] ?? null,
             'stage'                => $validated['stage'] ?? null,
             'youtube_url'          => $validated['youtube_url'] ?? null,
             'posted_by'            => auth()->id(),
         ]);
 
-        if ($validated['progress_percentage'] >= 100) {
+        if (($validated['progress_percentage'] ?? 0) >= 100) {
             $property->update(['project_status' => 'completed', 'is_off_plan' => false]);
         }
 

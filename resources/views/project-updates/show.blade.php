@@ -53,6 +53,7 @@
             </div>
 
             <h1 style="font-size:24px;font-weight:700;color:var(--fg);letter-spacing:-0.02em;margin:0 0 20px;line-height:1.3;">{{ $projectUpdate->title }}</h1>
+            @if($progress !== null)
 
             {{-- Progress --}}
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
@@ -61,6 +62,7 @@
                 </div>
                 <span style="font-size:20px;font-weight:800;font-family:'Geist Mono',monospace;color:var(--tan);flex-shrink:0;">{{ $progress }}%</span>
             </div>
+            @endif
 
             {{-- Est. completion --}}
             @if($projectUpdate->estimated_completion)
@@ -73,9 +75,11 @@
     </div>
 
     {{-- Body --}}
+    @if($projectUpdate->body)
     <div style="background:var(--bg-card);border:1px solid var(--line);border-radius:16px;padding:28px;margin-bottom:20px;">
         <div style="font-size:15px;line-height:1.85;color:var(--fg-mute);">{!! nl2br(e($projectUpdate->body)) !!}</div>
     </div>
+    @endif
 
     {{-- Property Walkthrough Video --}}
     @if($projectUpdate->hasVideo())
