@@ -23,7 +23,7 @@
                         <span style="font-size:13px;font-weight:700;color:var(--hi);">{{ $latest->progress_percentage }}%</span>
                     </div>
                     @endif
-                    <p style="font-size:11px;color:var(--fg-mute);">Last updated: {{ $latest->created_at->format('d M Y') }}</p>
+                    <a href="{{ route('admin.project-updates.show', [$property, $latest]) }}" style="font-size:11px;color:var(--fg-mute);text-decoration:underline;">Last updated: {{ $latest->created_at->format('d M Y') }} · View update</a>
                     @else
                     <p style="font-size:13px;color:var(--fg-mute);">No updates posted yet</p>
                     @endif
