@@ -20,13 +20,13 @@
 
                 <div style="margin-bottom:16px;">
                     <label class="eyebrow" style="display:block;margin-bottom:6px;">Update Body <span style="color:var(--danger);">*</span></label>
-                    <textarea name="body" rows="6" required class="input-base" style="width:100%;resize:vertical;">{{ old('body') }}</textarea>
+                    <textarea name="body" rows="6" class="input-base" style="width:100%;resize:vertical;">{{ old('body') }}</textarea>
                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
                     <div>
                         <label class="eyebrow" style="display:block;margin-bottom:6px;">Progress (%) <span style="color:var(--danger);">*</span></label>
-                        <input type="number" name="progress_percentage" value="{{ old('progress_percentage', 0) }}" min="0" max="100" required class="input-base" style="width:100%;">
+                        <input type="number" name="progress_percentage" value="{{ old('progress_percentage') }}" min="0" max="100" class="input-base" style="width:100%;">
                     </div>
                     <div>
                         <label class="eyebrow" style="display:block;margin-bottom:6px;">Current Stage</label>

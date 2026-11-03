@@ -6,16 +6,20 @@
         <p style="font-size:13px;color:var(--fg-mute);margin-bottom:24px;">{{ $property->development_name }} · {{ $projectUpdate->created_at->format('d M Y') }}</p>
 
         <div class="card" style="padding:20px;margin-bottom:16px;">
+            @if($projectUpdate->progress_percentage !== null)
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
                 <div style="flex:1;background:var(--bg-raised);border-radius:999px;height:8px;overflow:hidden;">
                     <div style="background:var(--hi);height:8px;border-radius:999px;width:{{ $projectUpdate->progress_percentage }}%;"></div>
                 </div>
                 <span style="font-size:15px;font-weight:700;color:var(--hi);">{{ $projectUpdate->progress_percentage }}%</span>
             </div>
+            @endif
             @if($projectUpdate->stage)
             <p style="font-size:13px;color:var(--fg-dim);margin-bottom:12px;">Stage: <strong style="color:var(--fg);">{{ $projectUpdate->stage }}</strong></p>
             @endif
+            @if($projectUpdate->body)
             <div style="font-size:13px;color:var(--fg-dim);line-height:1.6;white-space:pre-wrap;">{{ $projectUpdate->body }}</div>
+            @endif
         </div>
 
         @if($projectUpdate->hasVideo())
