@@ -49,6 +49,10 @@ class ProjectUpdate extends Model
     {
         if (!$this->youtube_url) return null;
 
+        if (preg_match('#^https://player\.cloudinary\.com/embed/\?#', $this->youtube_url)) {
+            return $this->youtube_url;
+        }
+
         $id = null;
         if (preg_match('/[?&]v=([^&#]+)/', $this->youtube_url, $m)) {
             $id = $m[1];
