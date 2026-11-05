@@ -23,7 +23,7 @@ class SendProjectUpdateNotifications
                 }
             }
 
-            foreach ($usersToNotify->unique('id') as $user) {
+            foreach ($usersToNotify->unique('id')->reject->is_archived as $user) {
                 Mail::to($user->email)->send(new ProjectUpdateMail($update));
                 $user->notify(new ProjectUpdateNotification($update));
             }

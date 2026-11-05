@@ -5,10 +5,11 @@
     use App\Models\SupportTicket;
     use App\Models\User;
     $authUser         = auth()->user();
-    $kycPending       = User::where('is_admin', false)->whereNull('kyc_verified_at')->count();
+    $kycPending       = User::activeBuyers()->whereNull('kyc_verified_at')->count();
     $ticketsPending   = SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
     $chatPending      = SupportMessage::whereRaw('id IN (SELECT MAX(id) FROM support_messages GROUP BY user_id)')
-                          ->where('sender', 'buyer')->count();
+                          ->where('sender', 'buyer')
+                          ->whereHas('user', fn($q) => $q->whereNull('archived_at'))->count();
     $interestsPending = InterestRegistration::whereNull('forwarded_at')->count();
 @endphp
 <!doctype html>

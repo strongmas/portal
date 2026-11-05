@@ -159,6 +159,16 @@
     {{-- ── Main area ──────────────────────────────────────────────────────── --}}
     <div style="display:flex;flex-direction:column;min-width:0;">
 
+        @if(session(\App\Http\Controllers\Admin\AdminImpersonationController::SESSION_KEY))
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:10px 24px;background:var(--warn-bg);border-bottom:1px solid var(--warn);color:var(--warn);font-size:13px;font-weight:600;">
+                <span>You are logged in as {{ auth()->user()->name }}. Anything you do here is done on their account.</span>
+                <form method="POST" action="{{ route('impersonation.stop') }}">
+                    @csrf
+                    <button type="submit" class="btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--warn);border-color:var(--warn);">Return to admin</button>
+                </form>
+            </div>
+        @endif
+
         {{-- Topbar --}}
         <header class="topbar">
             <div class="flex items-center gap-3">

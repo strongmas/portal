@@ -17,10 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.permission' => \App\Http\Middleware\EnsureAdminPermission::class,
             'superadmin'       => \App\Http\Middleware\EnsureSuperAdmin::class,
             'ownership.role'   => \App\Http\Middleware\EnsureOwnershipRole::class,
+            'not.impersonating' => \App\Http\Middleware\BlockWhileImpersonating::class,
         ]);
 
         // Terminable middleware: tracks login activity after response is sent
         $middleware->web(append: [
+            \App\Http\Middleware\EnsureNotArchived::class,
             \App\Http\Middleware\TrackLoginActivity::class,
         ]);
     })

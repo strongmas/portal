@@ -10,14 +10,14 @@ class AdminKycController extends Controller
 {
     public function index()
     {
-        $pending  = User::where('is_admin', false)
+        $pending  = User::activeBuyers()
             ->whereNull('kyc_verified_at')
             ->withCount('ownerships')
             ->with(['ownerships.property', 'ownerships.unit'])
             ->latest()
             ->get();
 
-        $verified = User::where('is_admin', false)
+        $verified = User::activeBuyers()
             ->whereNotNull('kyc_verified_at')
             ->withCount('ownerships')
             ->orderByDesc('kyc_verified_at')

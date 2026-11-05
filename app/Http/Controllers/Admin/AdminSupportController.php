@@ -13,7 +13,7 @@ class AdminSupportController extends Controller
 {
     public function index()
     {
-        $buyers = User::where('is_admin', false)
+        $buyers = User::activeBuyers()
             ->whereHas('supportMessages')
             ->with(['supportMessages' => fn($q) => $q->latest()->take(1)])
             ->latest()

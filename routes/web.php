@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AdminBuyerController;
+use App\Http\Controllers\Admin\AdminImpersonationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminInterestController;
 use App\Http\Controllers\Admin\AdminKycController;
@@ -73,9 +74,14 @@ Route::middleware('auth')->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::middleware('not.impersonating')->group(function () {
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+        Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    });
+
+    // End a super admin's "log in as buyer" session
+    Route::post('/impersonation/stop', [AdminImpersonationController::class, 'stop'])->name('impersonation.stop');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -212,6 +218,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::resource('buyers', AdminBuyerController::class)->only(['store', 'edit', 'update']);
         Route::post('buyers/{buyer}/sales-rep', [AdminSalesRepController::class, 'assignToBuyer'])->name('buyers.assign-rep');
         Route::post('buyers/{buyer}/reset-password', [AdminBuyerController::class, 'resetPassword'])->name('buyers.reset-password');
+        Route::post('buyers/{buyer}/impersonate', [AdminImpersonationController::class, 'start'])->name('buyers.impersonate');
+        Route::post('buyers/{buyer}/archive', [AdminBuyerController::class, 'archive'])->name('buyers.archive');
+        Route::post('buyers/{buyer}/restore', [AdminBuyerController::class, 'restore'])->name('buyers.restore');
+        Route::delete('buyers/{buyer}', [AdminBuyerController::class, 'destroy'])->name('buyers.destroy');
 
         // Sales Reps
         Route::get('sales-reps', [AdminSalesRepController::class, 'index'])->name('sales-reps.index');

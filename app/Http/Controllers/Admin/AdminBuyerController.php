@@ -8,6 +8,7 @@ use App\Mail\WelcomeBuyerMail;
 use App\Models\Instalment;
 use App\Models\Ownership;
 use App\Models\Property;
+use App\Models\PropertyDocument;
 use App\Models\PropertyUnit;
 use App\Models\SalesRep;
 use App\Models\User;
@@ -15,13 +16,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AdminBuyerController extends Controller
 {
     public function index(Request $request)
     {
+        $showArchived  = $request->boolean('archived');
+        $archivedCount = User::where('is_admin', false)->whereNotNull('archived_at')->count();
+
         $query = User::where('is_admin', false)
+            ->when($showArchived, fn($q) => $q->whereNotNull('archived_at'), fn($q) => $q->whereNull('archived_at'))
             ->withCount('ownerships')
             ->with(['ownerships.property', 'ownerships.unit'])
             ->latest();
@@ -37,7 +43,7 @@ class AdminBuyerController extends Controller
 
         $buyers = $query->paginate(20)->withQueryString();
 
-        return view('admin.buyers.index', compact('buyers'));
+        return view('admin.buyers.index', compact('buyers', 'showArchived', 'archivedCount'));
     }
 
     public function show(User $buyer)
@@ -168,6 +174,72 @@ class AdminBuyerController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /** Hides the buyer and blocks their login. Nothing is erased. */
+    public function archive(Request $request, User $buyer)
+    {
+        abort_if($buyer->is_admin, 404);
+
+        $buyer->forceFill(['archived_at' => now()])->save();
+
+        Log::info('Buyer archived', ['admin_id' => $request->user()->id, 'buyer_id' => $buyer->id]);
+
+        return back()->with('success', "{$buyer->name} has been archived and can no longer log in.");
+    }
+
+    public function restore(Request $request, User $buyer)
+    {
+        abort_if($buyer->is_admin, 404);
+
+        $buyer->forceFill(['archived_at' => null])->save();
+
+        Log::info('Buyer restored', ['admin_id' => $request->user()->id, 'buyer_id' => $buyer->id]);
+
+        return back()->with('success', "{$buyer->name} has been restored and can log in again.");
+    }
+
+    /**
+     * Permanently erases a buyer. Foreign keys cascade to their property links,
+     * instalments, tickets and chats, so this is refused for anyone with payment
+     * records: those must be archived instead.
+     */
+    public function destroy(Request $request, User $buyer)
+    {
+        abort_if($buyer->is_admin, 404);
+
+        if ($buyer->hasPaymentRecords()) {
+            return back()->with('error', "{$buyer->name} has payment records, so they can only be archived.");
+        }
+
+        if (trim((string) $request->input('confirm_name')) !== $buyer->name) {
+            return back()->with('error', 'The name you typed did not match, so nothing was deleted.');
+        }
+
+        $privateFiles = $buyer->supportMessages()->whereNotNull('attachment_path')->pluck('attachment_path')
+            ->merge(PropertyDocument::where('uploaded_by', $buyer->id)->pluck('file_path'));
+        $avatar = $buyer->avatar_path;
+        $name   = $buyer->name;
+
+        $buyer->delete();
+
+        Log::warning('Buyer permanently deleted', [
+            'admin_id' => $request->user()->id,
+            'buyer_id' => $buyer->id,
+            'email'    => $buyer->email,
+        ]);
+
+        // A storage outage must not undo a completed deletion: leave any orphans behind.
+        try {
+            Storage::disk('private')->delete($privateFiles->all());
+            if ($avatar) {
+                Storage::disk('public')->delete($avatar);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return redirect()->route('admin.buyers.index')->with('success', "{$name} has been permanently deleted.");
     }
 
     private function generateInstalments(Ownership $ownership): void
