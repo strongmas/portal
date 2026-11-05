@@ -145,6 +145,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('payments/{payment}', [AdminPaymentCtrl::class, 'show'])->name('payments.show');
     Route::patch('payments/{payment}/flag', [AdminPaymentCtrl::class, 'flag'])->name('payments.flag');
     Route::patch('payments/{payment}/unflag', [AdminPaymentCtrl::class, 'unflag'])->name('payments.unflag');
+    Route::patch('payments/{payment}/confirm', [AdminPaymentCtrl::class, 'confirm'])->name('payments.confirm')->middleware('admin.permission:payments');
+
+    // Buyers (read-only — editing stays super admin only, below)
+    // create must be declared before the {buyer} wildcard to avoid "create" being captured as an ID
+    Route::get('buyers/create', [AdminBuyerController::class, 'create'])->name('buyers.create')->middleware('superadmin');
+    Route::get('buyers', [AdminBuyerController::class, 'index'])->name('buyers.index')->middleware('admin.permission:buyers');
+    Route::get('buyers/{buyer}', [AdminBuyerController::class, 'show'])->name('buyers.show')->middleware('admin.permission:buyers');
 
     // Support — chat threads
     Route::get('support', [AdminSupportController::class, 'index'])->name('support.index');
@@ -202,7 +209,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->name('roles.destroy');
 
         // Buyers + Sales Rep assignment
-        Route::resource('buyers', AdminBuyerController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update']);
+        Route::resource('buyers', AdminBuyerController::class)->only(['store', 'edit', 'update']);
         Route::post('buyers/{buyer}/sales-rep', [AdminSalesRepController::class, 'assignToBuyer'])->name('buyers.assign-rep');
         Route::post('buyers/{buyer}/reset-password', [AdminBuyerController::class, 'resetPassword'])->name('buyers.reset-password');
 

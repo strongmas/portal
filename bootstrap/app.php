@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin'          => \App\Http\Middleware\AdminMiddleware::class,
-            'superadmin'     => \App\Http\Middleware\EnsureSuperAdmin::class,
-            'ownership.role' => \App\Http\Middleware\EnsureOwnershipRole::class,
+            'admin'            => \App\Http\Middleware\AdminMiddleware::class,
+            'admin.permission' => \App\Http\Middleware\EnsureAdminPermission::class,
+            'superadmin'       => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'ownership.role'   => \App\Http\Middleware\EnsureOwnershipRole::class,
         ]);
 
         // Terminable middleware: tracks login activity after response is sent

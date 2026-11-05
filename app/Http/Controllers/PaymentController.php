@@ -287,6 +287,7 @@ class PaymentController extends Controller
     public function destroy(Payment $payment)
     {
         abort_unless($payment->user_id === auth()->id(), 403);
+        abort_if($payment->is_confirmed, 403, 'A confirmed payment cannot be deleted. Please contact support.');
 
         $ownership = $payment->ownership;
 

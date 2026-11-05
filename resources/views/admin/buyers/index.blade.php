@@ -6,7 +6,9 @@
         <h1 style="font-size:28px;font-weight:700;color:var(--fg);letter-spacing:-0.02em;">Buyers</h1>
         <p style="font-size:13px;color:var(--fg-mute);margin-top:2px;">{{ $buyers->total() }} registered {{ Str::plural('buyer', $buyers->total()) }}</p>
     </div>
-    <a href="{{ route('admin.buyers.create') }}" class="btn-primary">+ Add buyer</a>
+    @if(auth()->user()->isSuperAdmin())
+        <a href="{{ route('admin.buyers.create') }}" class="btn-primary">+ Add buyer</a>
+    @endif
 </div>
 
 {{-- Search bar --}}
@@ -62,9 +64,11 @@
                         <div class="flex items-center justify-end gap-3">
                             <a href="{{ route('admin.buyers.show', $buyer) }}"
                                style="font-size:12px;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">view</a>
-                            <a href="{{ route('admin.buyers.edit', $buyer) }}"
-                               style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;"
-                               onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">edit</a>
+                            @if(auth()->user()->isSuperAdmin())
+                                <a href="{{ route('admin.buyers.edit', $buyer) }}"
+                                   style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;"
+                                   onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">edit</a>
+                            @endif
                         </div>
                     </td>
                 </tr>

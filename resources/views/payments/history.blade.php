@@ -96,6 +96,9 @@
                                                     </div>
                                                     <div style="text-align:right;flex-shrink:0;">
                                                         <div style="font-family:'Geist Mono',monospace;font-weight:600;font-size:15px;color:{{ $payment->is_flagged ? 'var(--danger)' : 'var(--fg)' }};">{{ naira($payment->amount_kobo, true) }}</div>
+                                                        @if($payment->is_confirmed)
+                                                            <span class="chip chip-ok" style="font-size:11px;padding:2px 8px;margin-top:4px;display:inline-block;">✓ Confirmed</span>
+                                                        @endif
                                                         @if($payment->proof_path)
                                                             <a href="{{ route('payments.proof', $payment) }}" target="_blank"
                                                                class="chip" style="font-size:11px;padding:2px 8px;cursor:pointer;margin-top:4px;display:inline-block;" @click.stop>
