@@ -23,7 +23,14 @@ class InvitationController extends Controller
             return redirect()->route('home')->with('success', 'This invitation has already been accepted.');
         }
 
-        return view('invitations.show', compact('invitation'));
+        $invitedUser = User::where('email', $invitation->email)->first();
+
+        // Brings them back here after they log in.
+        if ($invitedUser && auth()->guest()) {
+            redirect()->setIntendedUrl(route('invitations.show', $token));
+        }
+
+        return view('invitations.show', compact('invitation', 'invitedUser'));
     }
 
     public function accept(Request $request, string $token)
@@ -37,6 +44,12 @@ class InvitationController extends Controller
         // Check if user with this email exists
         $user = User::where('email', $invitation->email)->first();
 
+        // The link alone must never open an existing account: the token proves
+        // access to the invitation, not to the account. The page explains what to do.
+        if ($user && auth()->id() !== $user->id) {
+            return redirect()->route('invitations.show', $token);
+        }
+
         if (!$user) {
             // New user — register them
             $request->validate([
@@ -49,6 +62,8 @@ class InvitationController extends Controller
                 'email'    => $invitation->email,
                 'password' => Hash::make($request->password),
             ]);
+
+            auth()->login($user);
         }
 
         // Add them as a group member
@@ -58,8 +73,6 @@ class InvitationController extends Controller
         );
 
         $invitation->update(['accepted_at' => now()]);
-
-        auth()->login($user);
 
         return redirect()->route('home')->with('success', 'Welcome! You now have access to the shared property.');
     }
