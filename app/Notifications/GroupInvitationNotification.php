@@ -20,7 +20,7 @@ class GroupInvitationNotification extends Notification
             'type'    => 'invitation',
             'title'   => 'Property Access Invitation',
             'message' => "You have been invited to access {$this->invitation->ownership->display_name} as {$this->invitation->role}.",
-            'url'     => route('invitations.accept', $this->invitation->token),
+            'url'     => route('invitations.show', $this->invitation->token),
         ];
     }
 }

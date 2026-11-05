@@ -21,9 +21,22 @@
         </span>
     </div>
 
-    @php $existingUser = \App\Models\User::where('email', $invitation->email)->exists(); @endphp
-
-    @if($existingUser)
+    @if($invitedUser && auth()->guest())
+    <p style="font-size:14px;color:#444;text-align:center;margin:0 0 20px;">You already have an account. Log in with the email address this invitation was sent to, and you'll come back here to accept.</p>
+    <a href="{{ route('login') }}"
+       style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;width:100%;background:#1a1a1a;color:#fff;padding:14px;border-radius:10px;font-size:15px;font-weight:600;">
+        Log in to accept
+    </a>
+    @elseif($invitedUser && auth()->id() !== $invitedUser->id)
+    <p style="font-size:14px;color:#444;text-align:center;margin:0 0 20px;">This invitation was sent to a different account from the one you're logged in with. Log out, then open the invitation link again.</p>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit"
+                style="width:100%;background:#1a1a1a;color:#fff;padding:14px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer;">
+            Log out
+        </button>
+    </form>
+    @elseif($invitedUser)
     <p style="font-size:14px;color:#444;text-align:center;margin:0 0 20px;">Click below to accept access to this property.</p>
     <form method="POST" action="{{ route('invitations.accept', $invitation->token) }}">
         @csrf
