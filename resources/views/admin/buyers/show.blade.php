@@ -1,5 +1,19 @@
 <x-layouts.admin title="{{ $buyer->name }}">
 
+@php $canManage = auth()->user()->isSuperAdmin(); @endphp
+
+@if($buyer->is_archived)
+    <div style="background:var(--warn-bg);border:1px solid var(--warn);border-radius:var(--r-lg);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;">
+        <div style="font-size:13px;font-weight:600;color:var(--warn);">Archived {{ $buyer->archived_at->format('d M Y') }}. This buyer can't log in and gets no emails. Their records are kept.</div>
+        @if($canManage)
+            <form method="POST" action="{{ route('admin.buyers.restore', $buyer) }}">
+                @csrf
+                <button type="submit" class="btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--warn);border-color:var(--warn);">Restore buyer</button>
+            </form>
+        @endif
+    </div>
+@endif
+
 <div class="flex items-center gap-2 mb-6" style="font-size:13px;color:var(--fg-dim);">
     <a href="{{ route('admin.buyers.index') }}" style="color:var(--fg-dim);text-decoration:none;" onmouseover="this.style.color='var(--tan)'" onmouseout="this.style.color='var(--fg-dim)'">Buyers</a>
     <span>/</span>
@@ -28,13 +42,21 @@
                 <button type="submit" class="btn-primary" style="background:var(--ok);border-color:var(--ok);">✓ Approve KYC</button>
             </form>
         @endif
-        <form method="POST" action="{{ route('admin.buyers.reset-password', $buyer) }}"
-              onsubmit="return confirm('Reset password for {{ addslashes($buyer->name) }}? A new temporary password will be generated and emailed to them.')">
-            @csrf
-            <button type="submit" class="btn-ghost" style="color:var(--warn);border-color:var(--warn);">🔑 Reset password</button>
-        </form>
-        <a href="{{ route('admin.ownerships.create', ['buyer_id' => $buyer->id]) }}" class="btn-primary">🔗 Link property</a>
-        <a href="{{ route('admin.buyers.edit', $buyer) }}" class="btn-ghost">Edit buyer</a>
+        @if($canManage)
+            @unless($buyer->is_archived)
+                <form method="POST" action="{{ route('admin.buyers.impersonate', $buyer) }}">
+                    @csrf
+                    <button type="submit" class="btn-secondary">Log in as buyer</button>
+                </form>
+            @endunless
+            <form method="POST" action="{{ route('admin.buyers.reset-password', $buyer) }}"
+                  onsubmit="return confirm('Reset password for {{ addslashes($buyer->name) }}? A new temporary password will be generated and emailed to them.')">
+                @csrf
+                <button type="submit" class="btn-ghost" style="color:var(--warn);border-color:var(--warn);">🔑 Reset password</button>
+            </form>
+            <a href="{{ route('admin.ownerships.create', ['buyer_id' => $buyer->id]) }}" class="btn-primary">🔗 Link property</a>
+            <a href="{{ route('admin.buyers.edit', $buyer) }}" class="btn-ghost">Edit buyer</a>
+        @endif
     </div>
 </div>
 
@@ -94,18 +116,20 @@
             @else
                 <p style="font-size:13px;color:var(--fg-dim);margin-bottom:14px;">No sales rep assigned.</p>
             @endif
-            <form method="POST" action="{{ route('admin.buyers.assign-rep', $buyer) }}">
-                @csrf @method('POST')
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <select name="sales_rep_id" class="input-base" style="flex:1;font-size:13px;">
-                        <option value="">— unassign —</option>
-                        @foreach($allReps as $rep)
-                            <option value="{{ $rep->id }}" {{ $buyer->sales_rep_id == $rep->id ? 'selected' : '' }}>{{ $rep->name }}</option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="btn-ghost" style="font-size:12px;padding:8px 12px;white-space:nowrap;">Assign</button>
-                </div>
-            </form>
+            @if($canManage)
+                <form method="POST" action="{{ route('admin.buyers.assign-rep', $buyer) }}">
+                    @csrf @method('POST')
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select name="sales_rep_id" class="input-base" style="flex:1;font-size:13px;">
+                            <option value="">— unassign —</option>
+                            @foreach($allReps as $rep)
+                                <option value="{{ $rep->id }}" {{ $buyer->sales_rep_id == $rep->id ? 'selected' : '' }}>{{ $rep->name }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn-ghost" style="font-size:12px;padding:8px 12px;white-space:nowrap;">Assign</button>
+                    </div>
+                </form>
+            @endif
         </div>
 
         {{-- Financial summary --}}
@@ -180,7 +204,9 @@
                                 <div style="font-weight:700;color:{{ $clr }};font-family:'Geist Mono',monospace;font-size:13px;">{{ $val }}</div>
                             </div>
                         @endforeach
-                        <a href="{{ route('admin.ownerships.edit', $ownership) }}" class="btn-ghost" style="font-size:12px;padding:6px 12px;">Edit link</a>
+                        @if($canManage)
+                            <a href="{{ route('admin.ownerships.edit', $ownership) }}" class="btn-ghost" style="font-size:12px;padding:6px 12px;">Edit link</a>
+                        @endif
                     </div>
                 </div>
 
@@ -210,6 +236,7 @@
                                     <td style="padding:10px 20px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--fg-dim);">
                                         <a href="{{ route('admin.payments.show', $payment) }}" style="color:var(--fg-dim);text-decoration:none;" onmouseover="this.style.color='var(--tan)'" onmouseout="this.style.color='var(--fg-dim)'">{{ $payment->receipt_number }}</a>
                                         @if($payment->is_flagged)<span class="chip chip-danger" style="font-size:9px;padding:1px 6px;margin-left:4px;">⚑</span>@endif
+                                        @if($payment->is_confirmed)<span class="chip chip-ok" style="font-size:9px;padding:1px 6px;margin-left:4px;">✓ confirmed</span>@endif
                                     </td>
                                     <td style="padding:10px 20px;color:var(--fg-mute);">{{ $payment->paid_on->format('d M Y') }}</td>
                                     <td style="padding:10px 20px;color:var(--fg-dim);font-size:11px;font-family:'Geist Mono',monospace;">{{ $payment->bank }}{{ $payment->bank && $payment->reference ? ' · ' : '' }}{{ $payment->reference }}</td>
@@ -241,12 +268,16 @@
                         <span style="color:var(--ok);">✓ {{ $paidCount }} paid</span>
                         @if($dueCount > 0)<span style="color:var(--warn);">⏳ {{ $dueCount }} due</span>@endif
                         @if($overdueCount > 0)<span style="color:var(--danger);">⚠ {{ $overdueCount }} overdue</span>@endif
-                        <a href="{{ route('admin.ownerships.edit', $ownership) }}" style="margin-left:auto;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">Manage schedule →</a>
+                        @if($canManage)
+                            <a href="{{ route('admin.ownerships.edit', $ownership) }}" style="margin-left:auto;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">Manage schedule →</a>
+                        @endif
                     </div>
                 @else
                     <div style="padding:10px 20px;background:var(--warn-bg);border-top:1px solid rgba(245,194,107,0.2);display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--warn);">
                         <span>⚠ No instalment schedule generated yet</span>
-                        <a href="{{ route('admin.ownerships.edit', $ownership) }}" style="text-decoration:underline;text-underline-offset:3px;">Generate →</a>
+                        @if($canManage)
+                            <a href="{{ route('admin.ownerships.edit', $ownership) }}" style="text-decoration:underline;text-underline-offset:3px;">Generate →</a>
+                        @endif
                     </div>
                 @endif
 
@@ -254,11 +285,46 @@
         @empty
             <div class="card" style="padding:60px;text-align:center;color:var(--fg-dim);">
                 No properties linked yet.
-                <a href="{{ route('admin.ownerships.create', ['buyer_id' => $buyer->id]) }}" style="color:var(--tan);text-decoration:underline;text-underline-offset:3px;margin-left:4px;">Link a property →</a>
+                @if($canManage)
+                    <a href="{{ route('admin.ownerships.create', ['buyer_id' => $buyer->id]) }}" style="color:var(--tan);text-decoration:underline;text-underline-offset:3px;margin-left:4px;">Link a property →</a>
+                @endif
             </div>
         @endforelse
 
     </div>
 </div>
+
+@if($canManage)
+    <div class="card" style="padding:20px;margin-top:24px;border-color:rgba(244,114,114,0.2);display:flex;flex-direction:column;gap:20px;">
+        @unless($buyer->is_archived)
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h3 style="font-size:14px;font-weight:600;color:var(--fg);">Archive buyer</h3>
+                    <p style="font-size:12px;color:var(--fg-dim);margin-top:2px;">Hides them, stops their login and emails, and keeps every record. You can restore them at any time.</p>
+                </div>
+                <form method="POST" action="{{ route('admin.buyers.archive', $buyer) }}"
+                      onsubmit="return confirm('Archive {{ addslashes($buyer->name) }}? They will not be able to log in until restored.')">
+                    @csrf
+                    <button type="submit" class="btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--warn);border-color:var(--warn);flex-shrink:0;">Archive</button>
+                </form>
+            </div>
+        @endunless
+
+        <div>
+            <h3 style="font-size:14px;font-weight:600;color:var(--danger);">Permanently delete buyer</h3>
+            @if($buyer->hasPaymentRecords())
+                <p style="font-size:12px;color:var(--fg-dim);margin-top:2px;">Not available: this buyer has payment records. Archive them instead.</p>
+            @else
+                <p style="font-size:12px;color:var(--fg-dim);margin:2px 0 12px;">Erases this account, its property links, instalments, tickets, chats and uploaded documents, and removes access for anyone they invited. This can't be undone.</p>
+                <form method="POST" action="{{ route('admin.buyers.destroy', $buyer) }}" class="flex items-center gap-3"
+                      onsubmit="return confirm('Permanently delete {{ addslashes($buyer->name) }}? This cannot be undone.')">
+                    @csrf @method('DELETE')
+                    <input type="text" name="confirm_name" required autocomplete="off" class="input-base" placeholder="Type {{ $buyer->name }} to confirm" style="max-width:320px;flex:1;font-size:13px;"/>
+                    <button type="submit" class="btn-primary" style="background:var(--danger);border-color:var(--danger);flex-shrink:0;">Delete permanently</button>
+                </form>
+            @endif
+        </div>
+    </div>
+@endif
 
 </x-layouts.admin>

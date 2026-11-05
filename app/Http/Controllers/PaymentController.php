@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\AdminImpersonationController;
 use App\Mail\StaffAlertMail;
 use App\Models\Instalment;
 use App\Models\Ownership;
@@ -91,6 +92,7 @@ class PaymentController extends Controller
         Payment::create([
             'ownership_id' => $ownership->id,
             'user_id'      => $request->user()->id,
+            'logged_by'    => $request->session()->get(AdminImpersonationController::SESSION_KEY),
             'amount_kobo'  => $amountKobo,
             'paid_on'      => $validated['paid_on'],
             'reference'    => $validated['reference'],
@@ -198,6 +200,7 @@ class PaymentController extends Controller
                     Payment::create([
                         'ownership_id'     => $allocation['ownership']->id,
                         'user_id'          => $user->id,
+                        'logged_by'        => session(AdminImpersonationController::SESSION_KEY),
                         'payment_group_id' => $groupId,
                         'amount_kobo'      => $allocation['amount_kobo'],
                         'paid_on'          => $validated['paid_on'],
@@ -287,6 +290,7 @@ class PaymentController extends Controller
     public function destroy(Payment $payment)
     {
         abort_unless($payment->user_id === auth()->id(), 403);
+        abort_if($payment->is_confirmed, 403, 'A confirmed payment cannot be deleted. Please contact support.');
 
         $ownership = $payment->ownership;
 

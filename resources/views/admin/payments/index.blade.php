@@ -45,11 +45,14 @@
                     <td style="padding:14px 20px;text-align:center;">
                         @if($payment->is_flagged)
                             <a href="{{ route('admin.payments.show', $payment) }}" class="chip chip-danger" style="font-size:10px;padding:2px 8px;text-decoration:none;">⚑ flagged</a>
-                        @elseif($payment->proof_path)
-                            <a href="{{ route('payments.proof', $payment) }}" target="_blank"
-                               style="font-size:12px;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">view proof →</a>
+                        @elseif($payment->is_confirmed)
+                            <a href="{{ route('admin.payments.show', $payment) }}" class="chip chip-ok" style="font-size:10px;padding:2px 8px;text-decoration:none;">✓ confirmed</a>
                         @else
-                            <span style="color:var(--fg-dim);font-size:12px;">—</span>
+                            <a href="{{ route('admin.payments.show', $payment) }}" class="chip chip-pending" style="font-size:10px;padding:2px 8px;text-decoration:none;">to confirm</a>
+                        @endif
+                        @if($payment->proof_path)
+                            <a href="{{ route('payments.proof', $payment) }}" target="_blank"
+                               style="display:block;margin-top:4px;font-size:12px;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">view proof →</a>
                         @endif
                     </td>
                 </tr>

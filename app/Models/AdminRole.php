@@ -13,6 +13,7 @@ class AdminRole extends Model
     protected $casts = ['permissions' => 'array'];
 
     public const ALL_PERMISSIONS = [
+        'buyers'                  => 'View Buyers',
         'support'                 => 'Chat Support',
         'tickets'                 => 'Support Tickets',
         'kyc'                     => 'KYC Review',

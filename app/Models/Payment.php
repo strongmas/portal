@@ -8,19 +8,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Payment extends Model
 {
     protected $fillable = [
-        'ownership_id', 'user_id', 'payment_group_id', 'amount_kobo',
+        'ownership_id', 'user_id', 'logged_by', 'payment_group_id', 'amount_kobo',
         'paid_on', 'reference', 'bank', 'notes', 'proof_path',
-        'flagged_at', 'flag_reason',
+        'flagged_at', 'flag_reason', 'confirmed_at', 'confirmed_by',
     ];
 
     protected $casts = [
-        'paid_on'    => 'date',
-        'flagged_at' => 'datetime',
+        'paid_on'      => 'date',
+        'flagged_at'   => 'datetime',
+        'confirmed_at' => 'datetime',
     ];
 
     public function getIsFlaggedAttribute(): bool
     {
         return !is_null($this->flagged_at);
+    }
+
+    public function getIsConfirmedAttribute(): bool
+    {
+        return !is_null($this->confirmed_at);
+    }
+
+    public function loggedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'logged_by');
+    }
+
+    public function confirmedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
     }
 
     public function getIsSplitAttribute(): bool

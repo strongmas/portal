@@ -4,18 +4,28 @@
     <div>
         <div class="eyebrow" style="margin-bottom:6px;">People</div>
         <h1 style="font-size:28px;font-weight:700;color:var(--fg);letter-spacing:-0.02em;">Buyers</h1>
-        <p style="font-size:13px;color:var(--fg-mute);margin-top:2px;">{{ $buyers->total() }} registered {{ Str::plural('buyer', $buyers->total()) }}</p>
+        <p style="font-size:13px;color:var(--fg-mute);margin-top:2px;">
+            {{ $buyers->total() }} {{ $showArchived ? 'archived' : 'registered' }} {{ Str::plural('buyer', $buyers->total()) }}
+            @if($showArchived)
+                · <a href="{{ route('admin.buyers.index') }}" style="color:var(--tan);text-decoration:underline;text-underline-offset:3px;">Back to active buyers</a>
+            @elseif($archivedCount > 0)
+                · <a href="{{ route('admin.buyers.index', ['archived' => 1]) }}" style="color:var(--tan);text-decoration:underline;text-underline-offset:3px;">View {{ $archivedCount }} archived</a>
+            @endif
+        </p>
     </div>
-    <a href="{{ route('admin.buyers.create') }}" class="btn-primary">+ Add buyer</a>
+    @if(auth()->user()->isSuperAdmin())
+        <a href="{{ route('admin.buyers.create') }}" class="btn-primary">+ Add buyer</a>
+    @endif
 </div>
 
 {{-- Search bar --}}
 <form method="GET" class="flex items-center gap-3 mb-5">
+    @if($showArchived)<input type="hidden" name="archived" value="1"/>@endif
     <input type="text" name="q" value="{{ request('q') }}" placeholder="Search name or email…"
            class="input-base" style="max-width:320px;flex:1;"/>
     <button type="submit" class="btn-ghost" style="font-size:13px;">Search</button>
     @if(request('q'))
-        <a href="{{ route('admin.buyers.index') }}" style="font-size:13px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;">Clear</a>
+        <a href="{{ route('admin.buyers.index', $showArchived ? ['archived' => 1] : []) }}" style="font-size:13px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;">Clear</a>
     @endif
 </form>
 
@@ -62,9 +72,11 @@
                         <div class="flex items-center justify-end gap-3">
                             <a href="{{ route('admin.buyers.show', $buyer) }}"
                                style="font-size:12px;color:var(--tan);text-decoration:underline;text-underline-offset:3px;">view</a>
-                            <a href="{{ route('admin.buyers.edit', $buyer) }}"
-                               style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;"
-                               onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">edit</a>
+                            @if(auth()->user()->isSuperAdmin())
+                                <a href="{{ route('admin.buyers.edit', $buyer) }}"
+                                   style="font-size:12px;color:var(--fg-dim);text-decoration:underline;text-underline-offset:3px;"
+                                   onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">edit</a>
+                            @endif
                         </div>
                     </td>
                 </tr>

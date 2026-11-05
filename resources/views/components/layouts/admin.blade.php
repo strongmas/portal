@@ -5,10 +5,11 @@
     use App\Models\SupportTicket;
     use App\Models\User;
     $authUser         = auth()->user();
-    $kycPending       = User::where('is_admin', false)->whereNull('kyc_verified_at')->count();
+    $kycPending       = User::activeBuyers()->whereNull('kyc_verified_at')->count();
     $ticketsPending   = SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
     $chatPending      = SupportMessage::whereRaw('id IN (SELECT MAX(id) FROM support_messages GROUP BY user_id)')
-                          ->where('sender', 'buyer')->count();
+                          ->where('sender', 'buyer')
+                          ->whereHas('user', fn($q) => $q->whereNull('archived_at'))->count();
     $interestsPending = InterestRegistration::whereNull('forwarded_at')->count();
 @endphp
 <!doctype html>
@@ -60,15 +61,17 @@
                 Dashboard
             </a>
 
-            {{-- Super-admin-only items --}}
-            @if($authUser->isSuperAdmin())
+            @if($authUser->adminCan('buyers'))
             <a href="{{ route('admin.buyers.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/buyers') ? 'active' : '' }}"
                @click="navOpen = false">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
                 Buyers
             </a>
+            @endif
 
+            {{-- Super-admin-only items --}}
+            @if($authUser->isSuperAdmin())
             <a href="{{ route('admin.properties.index') }}"
                class="nav-item {{ str_starts_with($path,'/admin/properties') ? 'active' : '' }}"
                @click="navOpen = false">

@@ -13,20 +13,20 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        $buyerCount      = User::where('is_admin', false)->count();
+        $buyerCount      = User::activeBuyers()->count();
         $propertyCount   = Property::count();
         $ownershipCount  = Ownership::count();
         $totalCollected  = Payment::sum('amount_kobo');
         $totalOutstanding= Ownership::sum('agreed_price_kobo') - $totalCollected;
         $openTickets     = SupportTicket::whereIn('status', ['open', 'in_progress'])->count();
-        $pendingKyc      = User::where('is_admin', false)->whereNull('kyc_verified_at')->count();
+        $pendingKyc      = User::activeBuyers()->whereNull('kyc_verified_at')->count();
 
         $recentPayments = Payment::with(['user', 'ownership.property'])
             ->latest('paid_on')
             ->take(8)
             ->get();
 
-        $recentBuyers = User::where('is_admin', false)
+        $recentBuyers = User::activeBuyers()
             ->latest()
             ->take(5)
             ->get();

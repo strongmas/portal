@@ -30,6 +30,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'kyc_verified_at'   => 'datetime',
+            'archived_at'       => 'datetime',
             'password'          => 'hashed',
             'is_admin'          => 'boolean',
         ];
@@ -70,6 +71,27 @@ class User extends Authenticatable
                 $q->whereNull('admin_role_id')
                   ->orWhereHas('adminRole', fn($q2) => $q2->whereJsonContains('permissions', $permission));
             });
+    }
+
+    // ── Buyer lifecycle ────────────────────────────────────────────────────
+
+    /** Buyers who have not been archived. */
+    public function scopeActiveBuyers(Builder $query): Builder
+    {
+        return $query->where('is_admin', false)->whereNull('archived_at');
+    }
+
+    public function getIsArchivedAttribute(): bool
+    {
+        return !is_null($this->archived_at);
+    }
+
+    /** True if any payment was made by this user or on one of their properties. */
+    public function hasPaymentRecords(): bool
+    {
+        return Payment::where('user_id', $this->id)
+            ->orWhereIn('ownership_id', $this->ownerships()->select('id'))
+            ->exists();
     }
 
     // ── Existing relationships ─────────────────────────────────────────────

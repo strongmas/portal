@@ -36,6 +36,16 @@
         <div class="flex items-center gap-3">
             @if($payment->is_flagged)
                 <span class="chip chip-danger">⚑ Flagged</span>
+            @elseif($payment->is_confirmed)
+                <span class="chip chip-ok">✓ Confirmed</span>
+            @elseif(auth()->user()->adminCan('payments'))
+                <form method="POST" action="{{ route('admin.payments.confirm', $payment) }}"
+                      onsubmit="return confirm('{{ $payment->is_split ? 'Confirm every leg of this split transfer?' : 'Confirm this payment has been received?' }}')">
+                    @csrf @method('PATCH')
+                    <button type="submit" class="btn-primary" style="background:var(--ok);border-color:var(--ok);">✓ Confirm payment</button>
+                </form>
+            @else
+                <span class="chip chip-pending">Awaiting confirmation</span>
             @endif
             <a href="{{ route('payments.receipt', $payment) }}" target="_blank" class="btn-secondary" style="font-size:13px;">
                 ⇩ PDF receipt
@@ -55,6 +65,8 @@
                     ['Property',    e($payment->ownership->display_name ?? '—')],
                     ['Date paid',   $payment->paid_on->format('d F Y')],
                     ['Date logged', $payment->created_at->format('d M Y · H:i')],
+                    ['Logged by',   $payment->logged_by ? e($payment->loggedBy?->name ?? 'Former staff').' (admin, for the buyer)' : 'Buyer'],
+                    ['Confirmed',   $payment->is_confirmed ? $payment->confirmed_at->format('d M Y · H:i').' · '.e($payment->confirmedBy?->name ?? 'Former staff') : 'Not yet'],
                     ['Bank',        $payment->bank ? e($payment->bank) : '—'],
                     ['Reference',   $payment->reference ? '<span style="font-family:\'Geist Mono\',monospace;font-size:12px;">'.e($payment->reference).'</span>' : '—'],
                     ['Payment plan', ucfirst($payment->ownership->payment_plan)],
