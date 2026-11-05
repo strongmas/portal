@@ -65,6 +65,7 @@
                     ['Property',    e($payment->ownership->display_name ?? '—')],
                     ['Date paid',   $payment->paid_on->format('d F Y')],
                     ['Date logged', $payment->created_at->format('d M Y · H:i')],
+                    ['Logged by',   $payment->logged_by ? e($payment->loggedBy?->name ?? 'Former staff').' (admin, for the buyer)' : 'Buyer'],
                     ['Confirmed',   $payment->is_confirmed ? $payment->confirmed_at->format('d M Y · H:i').' · '.e($payment->confirmedBy?->name ?? 'Former staff') : 'Not yet'],
                     ['Bank',        $payment->bank ? e($payment->bank) : '—'],
                     ['Reference',   $payment->reference ? '<span style="font-family:\'Geist Mono\',monospace;font-size:12px;">'.e($payment->reference).'</span>' : '—'],

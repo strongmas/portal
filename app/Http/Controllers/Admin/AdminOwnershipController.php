@@ -18,7 +18,7 @@ class AdminOwnershipController extends Controller
 {
     public function create(Request $request)
     {
-        $buyers     = User::where('is_admin', false)->orderBy('name')->get();
+        $buyers     = User::activeBuyers()->orderBy('name')->get();
         $properties = Property::with('units')->orderBy('development_name')->get();
         $units      = PropertyUnit::with('property')->get();
 
