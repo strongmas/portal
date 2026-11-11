@@ -53,6 +53,13 @@ class BuyerSeesOnlyDatePaidTest extends TestCase
             ->assertDontSee('16:45');
     }
 
+    public function test_receipt_number_uses_the_month_paid(): void
+    {
+        $payment = $this->payment();
+
+        $this->assertStringStartsWith('RCP-2603-', $payment->receipt_number);
+    }
+
     public function test_receipt_shows_date_paid_but_not_date_logged(): void
     {
         $payment = $this->payment();
