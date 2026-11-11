@@ -149,7 +149,6 @@
                                     <div class="flex justify-between"><span style="color:var(--fg-dim);">Property</span><strong style="color:var(--fg);">{{ $payment->ownership?->display_name ?? '—' }}</strong></div>
                                     <div class="flex justify-between"><span style="color:var(--fg-dim);">Subscriber</span><strong style="color:var(--fg);">{{ $payment->user->name }}</strong></div>
                                     <div class="flex justify-between"><span style="color:var(--fg-dim);">Date paid</span><strong style="color:var(--fg);">{{ $payment->paid_on->format('d M Y') }}</strong></div>
-                                    <div class="flex justify-between"><span style="color:var(--fg-dim);">Logged</span><strong style="color:var(--fg);">{{ $payment->created_at->format('d M · H:i') }}</strong></div>
                                     @if($payment->bank)
                                         <div class="flex justify-between"><span style="color:var(--fg-dim);">Method</span><strong style="color:var(--fg);">{{ $payment->bank }} transfer</strong></div>
                                     @endif

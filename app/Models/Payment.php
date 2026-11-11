@@ -84,7 +84,9 @@ class Payment extends Model
 
     public function getReceiptNumberAttribute(): string
     {
-        $ym = $this->created_at->format('ym');
+        // Month paid, not month logged — buyers must not be able to tell when
+        // a payment was entered into the portal.
+        $ym = $this->paid_on->format('ym');
         $seq = str_pad($this->id, 3, '0', STR_PAD_LEFT);
         return "RCP-{$ym}-{$seq}";
     }

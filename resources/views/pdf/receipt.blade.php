@@ -83,10 +83,6 @@
             <span class="row-label">Date paid</span>
             <span class="row-value">{{ $payment->paid_on->format('d F Y') }}</span>
         </div>
-        <div class="row">
-            <span class="row-label">Date logged</span>
-            <span class="row-value">{{ $payment->created_at->format('d F Y · H:i') }}</span>
-        </div>
         @if($payment->bank)
         <div class="row">
             <span class="row-label">Payment method</span>
