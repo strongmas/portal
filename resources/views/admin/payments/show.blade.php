@@ -138,6 +138,42 @@
         </div>
     </div>
 
+    {{-- Silent edit: staff only, no notification, nothing shown to the buyer --}}
+    @if(auth()->user()->adminCan('payments'))
+        <div class="card" style="padding:20px;margin-bottom:20px;" x-data="{ open: {{ $errors->has('paid_on') || $errors->has('proof') ? 'true' : 'false' }} }">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 style="font-size:15px;font-weight:600;color:var(--fg);">Edit payment</h2>
+                    <p style="font-size:12px;color:var(--fg-dim);margin-top:2px;">
+                        Change the date paid or attach a proof. No one is notified and the buyer sees no record of the edit.
+                        @if($payment->is_split) Applies to every leg of this split transfer. @endif
+                    </p>
+                </div>
+                <button type="button" @click="open = !open" class="btn-ghost" style="font-size:12px;padding:6px 14px;flex-shrink:0;margin-left:16px;">✎ Edit</button>
+            </div>
+            <form x-show="open" x-cloak method="POST" action="{{ route('admin.payments.update', $payment) }}" enctype="multipart/form-data"
+                  style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
+                @csrf @method('PATCH')
+                <div>
+                    <label class="eyebrow" style="display:block;margin-bottom:6px;">Date paid</label>
+                    <input type="date" name="paid_on" required max="{{ now()->toDateString() }}" class="input-base"
+                           value="{{ old('paid_on', $payment->paid_on->toDateString()) }}" style="font-size:13px;">
+                    @error('paid_on')<p style="color:var(--danger);font-size:12px;margin-top:4px;">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="eyebrow" style="display:block;margin-bottom:6px;">{{ $payment->proof_path ? 'Replace proof of payment' : 'Proof of payment' }} (optional)</label>
+                    <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png" style="font-size:13px;color:var(--fg-mute);">
+                    <p style="font-size:11px;color:var(--fg-dim);margin-top:4px;">PDF, JPG or PNG, up to 5 MB.</p>
+                    @error('proof')<p style="color:var(--danger);font-size:12px;margin-top:4px;">{{ $message }}</p>@enderror
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn-primary" style="flex-shrink:0;">Save changes</button>
+                    <button type="button" @click="open = false" class="btn-ghost" style="font-size:13px;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    @endif
+
     @if($payment->notes)
         <div class="card" style="padding:20px;margin-bottom:20px;">
             <div style="font-size:11px;color:var(--fg-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;font-family:'Geist Mono',monospace;">Notes from buyer</div>

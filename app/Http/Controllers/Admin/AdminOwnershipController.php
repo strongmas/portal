@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\PaymentController;
 use App\Mail\PropertyLinkedMail;
 use App\Models\Instalment;
 use App\Models\Ownership;
@@ -107,9 +108,22 @@ class AdminOwnershipController extends Controller
             'status'                   => $validated['status'],
         ]);
 
+        $priceChanged = $ownership->wasChanged('agreed_price_kobo');
+
         if ($request->boolean('regenerate_schedule')) {
             $ownership->instalments()->delete();
             $this->generateInstalments($ownership);
+        }
+
+        // A fresh schedule starts with every slot unpaid, and a new price changes
+        // what is still owed — either way, put the logged payments back against
+        // the schedule so the buyer's history and balance survive the edit.
+        if ($request->boolean('regenerate_schedule') || $priceChanged) {
+            app(PaymentController::class)->recalculateSchedule($ownership->fresh());
+
+            // Recalculating can flip active/completed; the status the admin
+            // just chose wins.
+            $ownership->update(['status' => $validated['status']]);
         }
 
         return redirect()->route('admin.buyers.show', $ownership->user_id)
@@ -119,6 +133,13 @@ class AdminOwnershipController extends Controller
     public function destroy(Ownership $ownership)
     {
         $buyerId = $ownership->user_id;
+
+        // Deleting an ownership cascades to its payments in the database, so a
+        // link with money logged against it must never be removed from here.
+        if ($ownership->payments()->exists()) {
+            return back()->with('error', 'This property has payments logged against it, so the link cannot be removed. Edit the ownership instead, or delete the payments first.');
+        }
+
         $ownership->instalments()->delete();
         $ownership->delete();
 
