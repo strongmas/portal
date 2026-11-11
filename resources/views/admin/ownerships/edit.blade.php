@@ -111,7 +111,7 @@
                 <div>
                     <label for="regenerate_schedule" style="font-size:13px;font-weight:500;color:var(--warn);cursor:pointer;">Regenerate instalment schedule</label>
                     <p style="font-size:12px;color:var(--fg-mute);margin-top:3px;line-height:1.5;">
-                        Deletes all existing instalments and rebuilds from the new start date / total count.
+                        Rebuilds the instalment dates from the new start date / total count. Payments already logged are kept and re-applied to the new schedule.
                     </p>
                 </div>
             </div>
@@ -120,16 +120,19 @@
         <div class="form-footer" style="padding:16px 24px;background:var(--bg-raised);">
             <div class="flex items-center gap-4">
                 <a href="{{ route('admin.buyers.show', $ownership->user) }}" style="font-size:13px;color:var(--fg-dim);text-decoration:none;" onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--fg-dim)'">Cancel</a>
-                <form method="POST" action="{{ route('admin.ownerships.destroy', $ownership) }}"
-                      onsubmit="return confirm('Remove this property link? Payments are kept.')"
-                      style="display:inline;">
-                    @csrf @method('DELETE')
-                    <button type="submit" style="font-size:13px;color:var(--danger);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;"
-                            onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Remove link</button>
-                </form>
+                {{-- Belongs to the separate form below the main one. A form nested
+                     inside this one is dropped by the browser, which merged its
+                     DELETE method into "Save changes" and deleted the ownership. --}}
+                <button type="submit" form="remove-ownership-form" style="font-size:13px;color:var(--danger);background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px;"
+                        onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Remove link</button>
             </div>
             <button type="submit" class="btn-primary" style="font-size:13px;">Save changes</button>
         </div>
+    </form>
+
+    <form id="remove-ownership-form" method="POST" action="{{ route('admin.ownerships.destroy', $ownership) }}"
+          onsubmit="return confirm('Remove this property link? This is only possible when it has no payments logged.')">
+        @csrf @method('DELETE')
     </form>
 </div>
 

@@ -152,6 +152,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::patch('payments/{payment}/flag', [AdminPaymentCtrl::class, 'flag'])->name('payments.flag');
     Route::patch('payments/{payment}/unflag', [AdminPaymentCtrl::class, 'unflag'])->name('payments.unflag');
     Route::patch('payments/{payment}/confirm', [AdminPaymentCtrl::class, 'confirm'])->name('payments.confirm')->middleware('admin.permission:payments');
+    Route::patch('payments/{payment}', [AdminPaymentCtrl::class, 'update'])->name('payments.update')->middleware('admin.permission:payments');
 
     // Buyers (read-only — editing stays super admin only, below)
     // create must be declared before the {buyer} wildcard to avoid "create" being captured as an ID
